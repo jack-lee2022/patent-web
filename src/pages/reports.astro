@@ -1,0 +1,58 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="Reports">
+  <h1>Analysis Reports</h1>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <span style="color:var(--text-muted);">Latest reports from GitHub repo</span>
+      <button class="btn btn-sm" onclick="loadReports()">Refresh</button>
+    </div>
+    <div id="loading">Loading reports...</div>
+    <div id="reports"></div>
+  </div>
+
+  <script>
+    async function loadReports() {
+      const container = document.getElementById('reports');
+      const loading = document.getElementById('loading');
+      loading.style.display = 'block';
+      container.innerHTML = '';
+
+      try {
+        const resp = await fetch('/api/list-reports');
+        const reports = await resp.json();
+        loading.style.display = 'none';
+
+        if (!reports.length) {
+          container.innerHTML = '<p style="color:var(--text-muted)">No reports yet. Submit an analysis to generate one.</p>';
+          return;
+        }
+
+        const ul = document.createElement('ul');
+        ul.style.listStyle = 'none';
+        reports.forEach(r => {
+          const li = document.createElement('li');
+          li.style.padding = '0.75rem 0';
+          li.style.borderBottom = '1px solid var(--border)';
+          li.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-weight:500;">${r.name}</div>
+                <div style="font-size:0.875rem;color:var(--text-muted);">${(r.size / 1024).toFixed(1)} KB</div>
+              </div>
+              <a href="${r.download_url || r.url}" target="_blank" class="btn btn-sm" style="text-decoration:none;">View &rarr;</a>
+            </div>
+          `;
+          ul.appendChild(li);
+        });
+        container.appendChild(ul);
+      } catch (err) {
+        loading.style.display = 'none';
+        container.innerHTML = '<p style="color:var(--danger)">Error loading reports: ' + err.message + '</p>';
+      }
+    }
+
+    loadReports();
+  </script>
+</BaseLayout>

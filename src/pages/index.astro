@@ -1,0 +1,129 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="New Patent Analysis">
+  <h1>Patent Analysis Request</h1>
+  
+  <div class="card">
+    <form id="analysisForm">
+      <div class="form-group">
+        <label>Analysis Mode</label>
+        <select id="mode" name="mode" required>
+          <option value="sota">State of the Art (SOTA) - Technology Landscape</option>
+          <option value="patentability">Patentability - Novelty Assessment</option>
+          <option value="fto">Freedom to Operate (FTO) - Infringement Risk</option>
+        </select>
+      </div>
+
+      <!-- SOTA fields -->
+      <div id="sota-fields">
+        <div class="form-group">
+          <label>Technology Topic</label>
+          <input type="text" name="topic" placeholder="e.g. negative pressure therapy sleep apnea" />
+        </div>
+        <div class="form-group">
+          <label>Additional Keywords (optional, space-separated)</label>
+          <input type="text" name="keywords" placeholder="e.g. oral device mask-free" />
+        </div>
+      </div>
+
+      <!-- Patentability fields -->
+      <div id="patentability-fields" style="display:none;">
+        <div class="form-group">
+          <label>Proposed Invention Description</label>
+          <textarea name="invention" placeholder="Describe your invention in detail..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Technical Field</label>
+          <input type="text" name="field" placeholder="e.g. nasal dilator" />
+        </div>
+      </div>
+
+      <!-- FTO fields -->
+      <div id="fto-fields" style="display:none;">
+        <div class="form-group">
+          <label>Product Name / Description</label>
+          <textarea name="product" placeholder="Describe the product you want to evaluate..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Target Markets (comma-separated)</label>
+          <input type="text" name="markets" value="US, TW, EP" />
+        </div>
+        <div class="form-group">
+          <label>Target Assignees / Competitors (optional)</label>
+          <input type="text" name="assignees" placeholder="e.g. ResMed, Philips" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Max Results</label>
+        <input type="number" name="max_results" value="50" min="10" max="200" />
+      </div>
+
+      <button type="submit" class="btn" id="submitBtn">Submit Analysis Request</button>
+      <p id="result" style="margin-top:1rem;"></p>
+    </form>
+  </div>
+
+  <script>
+    const modeSelect = document.getElementById('mode');
+    const fields = {
+      sota: document.getElementById('sota-fields'),
+      patentability: document.getElementById('patentability-fields'),
+      fto: document.getElementById('fto-fields'),
+    };
+
+    function updateFields() {
+      const mode = modeSelect.value;
+      Object.values(fields).forEach(el => el.style.display = 'none');
+      fields[mode].style.display = 'block';
+    }
+
+    modeSelect.addEventListener('change', updateFields);
+    updateFields();
+
+    document.getElementById('analysisForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const result = document.getElementById('result');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      result.textContent = '';
+
+      const form = e.target;
+      const mode = form.mode.value;
+      const payload = { mode, max_results: parseInt(form.max_results.value) };
+
+      if (mode === 'sota') {
+        payload.topic = form.topic.value;
+        payload.keywords = form.keywords.value.split(' ').filter(Boolean);
+      } else if (mode === 'patentability') {
+        payload.invention = form.invention.value;
+        payload.field = form.field.value;
+      } else if (mode === 'fto') {
+        payload.product = form.product.value;
+        payload.markets = form.markets.value.split(',').map(s => s.trim());
+        payload.assignees = form.assignees.value.split(',').map(s => s.trim()).filter(Boolean);
+      }
+
+      try {
+        const resp = await fetch('/api/create-task', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await resp.json();
+        if (data.success) {
+          result.innerHTML = 'Task created! <a href="' + data.url + '" target="_blank" style="color:var(--accent);">Issue #' + data.issue_number + '</a>. <a href="/status" style="color:var(--accent);">View status &rarr;</a>';
+        } else {
+          result.textContent = 'Error: ' + (data.error || 'Unknown error');
+        }
+      } catch (err) {
+        result.textContent = 'Network error: ' + err.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit Analysis Request';
+      }
+    });
+  </script>
+</BaseLayout>

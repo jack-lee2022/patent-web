@@ -1,0 +1,80 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="Task Status">
+  <h1>Task Status</h1>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <span style="color:var(--text-muted);">Auto-refresh every 30s</span>
+      <button class="btn btn-sm" onclick="loadTasks()">Refresh</button>
+    </div>
+    <div id="loading">Loading...</div>
+    <div id="tasks"></div>
+  </div>
+
+  <script>
+    async function loadTasks() {
+      const container = document.getElementById('tasks');
+      const loading = document.getElementById('loading');
+      loading.style.display = 'block';
+      container.innerHTML = '';
+
+      try {
+        const resp = await fetch('/api/list-tasks?state=all');
+        const tasks = await resp.json();
+        loading.style.display = 'none';
+
+        if (!tasks.length) {
+          container.innerHTML = '<p style="color:var(--text-muted)">No tasks found.</p>';
+          return;
+        }
+
+        const table = document.createElement('table');
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.innerHTML = `
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);text-align:left;">
+              <th style="padding:0.75rem 0;">#</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        `;
+        const tbody = table.querySelector('tbody');
+
+        tasks.forEach(task => {
+          const statusClass = task.labels.includes('pending') ? 'status-pending' :
+                             task.labels.includes('processing') ? 'status-processing' :
+                             task.labels.includes('completed') ? 'status-completed' :
+                             task.labels.includes('failed') ? 'status-failed' : '';
+          const statusText = task.labels.includes('pending') ? 'Pending' :
+                            task.labels.includes('processing') ? 'Processing' :
+                            task.labels.includes('completed') ? 'Completed' :
+                            task.labels.includes('failed') ? 'Failed' : task.state;
+          const tr = document.createElement('tr');
+          tr.style.borderBottom = '1px solid var(--border)';
+          tr.innerHTML = `
+            <td style="padding:0.75rem 0;">${task.number}</td>
+            <td>${task.title}</td>
+            <td class="${statusClass}">${statusText}</td>
+            <td style="color:var(--text-muted);font-size:0.875rem;">${new Date(task.created_at).toLocaleString()}</td>
+            <td><a href="${task.url}" target="_blank" style="color:var(--accent);">View &rarr;</a></td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        container.appendChild(table);
+      } catch (err) {
+        loading.style.display = 'none';
+        container.innerHTML = '<p style="color:var(--danger)">Error loading tasks: ' + err.message + '</p>';
+      }
+    }
+
+    loadTasks();
+    setInterval(loadTasks, 30000);
+  </script>
+</BaseLayout>
