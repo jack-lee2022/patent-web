@@ -252,7 +252,7 @@ const t = {
   <script is:inline define:vars={{ DICT: t }}>
     let currentLang = localStorage.getItem('patent-lang') || 'zh';
 
-    function applyLanguage() {
+    window.applyLanguage = function() {
       const d = DICT[currentLang];
       document.querySelectorAll('[data-key]').forEach(el => {
         const key = el.getAttribute('data-key');
@@ -271,10 +271,10 @@ const t = {
       document.documentElement.lang = currentLang === 'zh' ? 'zh-TW' : 'en';
     }
 
-    function toggleLang() {
+    window.toggleLang = function() {
       currentLang = currentLang === 'zh' ? 'en' : 'zh';
       localStorage.setItem('patent-lang', currentLang);
-      applyLanguage();
+      window.applyLanguage();
     }
 
     // Mode switching
@@ -286,15 +286,16 @@ const t = {
       structured: document.getElementById('structured-fields')
     };
 
-    function selectMode(mode) {
+    window.selectMode = function(mode) {
       modeInput.value = mode;
       document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
-      document.querySelector('.mode-card[data-mode="' + mode + '"]').classList.add('active');
-      Object.values(sections).forEach(s => s.style.display = 'none');
+      const card = document.querySelector('.mode-card[data-mode="' + mode + '"]');
+      if (card) card.classList.add('active');
+      Object.values(sections).forEach(s => { if(s) s.style.display = 'none'; });
       if (sections[mode]) sections[mode].style.display = 'block';
     }
 
-    applyLanguage();
+    window.applyLanguage();
 
     document.getElementById('analysisForm').addEventListener('submit', async function(e) {
       e.preventDefault();

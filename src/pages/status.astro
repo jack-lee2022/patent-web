@@ -1,54 +1,52 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 const t = {
-  zh: { nav_new: "新增分析", nav_status: "任务状态", nav_reports: "报告列表", title_status: "任务状态", subtitle: "任务队列" },
+  zh: { nav_new: "New Analysis", nav_status: "Task Status", nav_reports: "Reports", title_status: "Task Status", subtitle: "Task Queue" },
   en: { nav_new: "New Analysis", nav_status: "Task Status", nav_reports: "Reports", title_status: "Task Status", subtitle: "Task Queue" }
 };
 ---
 <BaseLayout title="Task Status - Patent Analysis Agent">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-brand">
-      <div class="logo">P</div>
-      <div class="brand-text">Patent Analysis<small>Agent System</small></div>
+  <div class="centered-page">
+    <!-- Top Language Toggle -->
+    <div class="top-bar">
+      <button class="lang-toggle" onclick="toggleLang()">
+        <span id="langLabel">EN</span> | <span id="langAlt">中文</span>
+      </button>
     </div>
-    <nav class="sidebar-nav">
-      <a href="/"><span class="icon">✨</span><span data-key="nav_new">新增分析</span></a>
-      <a href="/status" class="active"><span class="icon">📋</span><span data-key="nav_status">任务状态</span></a>
-      <a href="/reports"><span class="icon">📊</span><span data-key="nav_reports">报告列表</span></a>
-    </nav>
-    <div class="sidebar-footer">
-      <button class="lang-switch" onclick="toggleLang()"><span id="langFlag">🇹🇼</span><span id="langLabel">EN</span></button>
-    </div>
-  </aside>
 
-  <!-- Main -->
-  <main class="main">
-    <div class="page-header">
-      <h1 data-key="title_status">任务状态</h1>
+    <!-- Logo & Title -->
+    <div class="hero">
+      <div class="hero-logo">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2" opacity="0.3"/>
+          <path d="M24 8C24 8 32 16 32 24C32 32 24 40 24 40" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M24 12C24 12 28 18 28 24C28 30 24 36 24 36" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+          <path d="M24 16C24 16 26 20 26 24C26 28 24 32 24 32" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+        </svg>
+      </div>
+      <h1 class="hero-title">PATENT ANALYSIS AGENT</h1>
     </div>
-    <div class="card">
-      <div id="loading" style="color:var(--text-muted);padding:1rem 0;">加载中...</div>
+
+    <!-- Navigation -->
+    <nav class="top-nav">
+      <a href="/" data-key="nav_new">New Analysis</a>
+      <a href="/status" class="active" data-key="nav_status">Task Status</a>
+      <a href="/reports" data-key="nav_reports">Reports</a>
+    </nav>
+
+    <!-- Content Card -->
+    <div class="form-card">
+      <h2 class="form-title" data-key="title_status">Task Status</h2>
+      <p class="form-subtitle" data-key="subtitle">Task Queue</p>
+
+      <div id="loading" style="color:var(--text-muted);padding:1rem 0;">Loading...</div>
       <div id="tasks"></div>
     </div>
-  </main>
+  </div>
 
-  <script is:inline>
-    const DICT = {
-      zh: {
-        nav_new: "新增分析", nav_status: "任务状态", nav_reports: "报告列表",
-        title_status: "任务状态", loading: "加载中...", empty: "暂无任务", error: "加载失败",
-        retry: "重试", table_state: "状态", table_title: "标题", table_created: "创建时间", table_view: "查看",
-        badge_pending: "待处理", badge_processing: "处理中", badge_completed: "已完成", badge_failed: "失败",
-      },
-      en: {
-        nav_new: "New Analysis", nav_status: "Task Status", nav_reports: "Reports",
-        title_status: "Task Status", loading: "Loading...", empty: "No tasks yet", error: "Failed to load",
-        retry: "Retry", table_state: "State", table_title: "Title", table_created: "Created", table_view: "View",
-        badge_pending: "Pending", badge_processing: "Processing", badge_completed: "Completed", badge_failed: "Failed",
-      }
-    };
+  <div class="sparkle" aria-hidden="true">✦</div>
 
+  <script is:inline define:vars={{ DICT: t }}>
     let currentLang = localStorage.getItem('patent-lang') || 'zh';
 
     function applyLanguage() {
@@ -57,9 +55,13 @@ const t = {
         const key = el.getAttribute('data-key');
         if (d[key]) el.textContent = d[key];
       });
-      const lf = document.getElementById('langFlag'), ll = document.getElementById('langLabel');
-      if (lf) lf.textContent = currentLang === 'zh' ? '🇹🇼' : '🇺🇸';
-      if (ll) ll.textContent = currentLang === 'zh' ? 'EN' : '中文';
+
+      const label = document.getElementById('langLabel');
+      const alt = document.getElementById('langAlt');
+      if (label) label.textContent = currentLang === 'zh' ? 'EN' : '中文';
+      if (alt) alt.textContent = currentLang === 'zh' ? '中文' : 'EN';
+
+      document.documentElement.lang = currentLang === 'zh' ? 'zh-TW' : 'en';
     }
 
     function toggleLang() {
@@ -88,47 +90,41 @@ const t = {
         if (loading) loading.style.display = 'none';
 
         if (tasks.error) {
-          container.innerHTML = `<div class="result-msg error">${d.error}: ${tasks.error}</div>`;
+          container.innerHTML = '<div class="result error">' + d.error + ': ' + tasks.error + '</div>';
           return;
         }
         if (!tasks.length) {
-          container.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:2rem 0;">${d.empty}</p>`;
+          container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:2rem 0;">' + d.empty + '</p>';
           return;
         }
 
         const stateMap = {
-          pending: { cls: 'badge-pending', label: d.badge_pending },
-          processing: { cls: 'badge-processing', label: d.badge_processing },
-          completed: { cls: 'badge-completed', label: d.badge_completed },
-          failed: { cls: 'badge-failed', label: d.badge_failed },
+          pending: { cls: 'badge-pending', label: d.badge_pending || 'Pending' },
+          processing: { cls: 'badge-processing', label: d.badge_processing || 'Processing' },
+          completed: { cls: 'badge-completed', label: d.badge_completed || 'Completed' },
+          failed: { cls: 'badge-failed', label: d.badge_failed || 'Failed' },
         };
 
         const rows = tasks.map(t => {
           const label = t.labels.find(l => ['pending','processing','completed','failed'].includes(l)) || 'pending';
           const st = stateMap[label] || stateMap.pending;
-          return `<tr>
-            <td><span class="badge ${st.cls}">${st.label}</span></td>
-            <td style="font-weight:500;color:var(--text);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${t.title.replace(/"/g,'&quot;')}">${t.title.replace(/^\[[A-Z]+\]\s*/, '')}</td>
-            <td style="color:var(--text-muted);font-size:0.8rem;white-space:nowrap;">${formatDate(t.created_at)}</td>
-            <td><a href="${t.url}" target="_blank" style="color:var(--accent);font-size:0.85rem;text-decoration:none;">GitHub →</a></td>
-          </tr>`;
+          return '<tr>' +
+            '<td><span class="badge ' + st.cls + '">' + st.label + '</span></td>' +
+            '<td style="font-weight:500;color:var(--text);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + t.title.replace(/"/g,'&quot;') + '">' + t.title.replace(/^\[[A-Z]+\]\s*/, '') + '</td>' +
+            '<td style="color:var(--text-muted);font-size:0.8rem;white-space:nowrap;">' + formatDate(t.created_at) + '</td>' +
+            '<td><a href="' + t.url + '" target="_blank" style="color:var(--accent);font-size:0.85rem;text-decoration:none;">GitHub →</a></td>' +
+          '</tr>';
         }).join('');
 
-        container.innerHTML = `
-          <div style="overflow-x:auto;">
-            <table class="data-table">
-              <thead><tr>
-                <th style="width:90px">${d.table_state}</th>
-                <th>${d.table_title}</th>
-                <th style="width:130px">${d.table_created}</th>
-                <th style="width:80px">${d.table_view}</th>
-              </tr></thead>
-              <tbody>${rows}</tbody>
-            </table>
-          </div>`;
+        container.innerHTML = '<div style="overflow-x:auto;"><table class="data-table"><thead><tr>' +
+          '<th style="width:90px">' + (d.table_state || 'State') + '</th>' +
+          '<th>' + (d.table_title || 'Title') + '</th>' +
+          '<th style="width:130px">' + (d.table_created || 'Created') + '</th>' +
+          '<th style="width:80px">' + (d.table_view || 'View') + '</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table></div>';
       } catch (err) {
         if (loading) loading.style.display = 'none';
-        container.innerHTML = `<div class="result-msg error">${d.error}: ${err.message}</div>`;
+        container.innerHTML = '<div class="result error">' + (d.error || 'Error') + ': ' + err.message + '</div>';
       }
     }
 
