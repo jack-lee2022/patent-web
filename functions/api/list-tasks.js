@@ -6,12 +6,15 @@
 export async function onRequestGet(context) {
   const { request, env } = context;
 
+  // DEBUG: show available env keys (values hidden)
+  const envKeys = Object.keys(env);
+
   const token = env.GITHUB_TOKEN;
   const repo = env.GITHUB_REPO || "jack-lee2022/patent_agent";
 
   if (!token) {
     return new Response(
-      JSON.stringify({ error: "GITHUB_TOKEN not configured" }),
+      JSON.stringify({ error: "GITHUB_TOKEN not configured", env_keys: envKeys }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
