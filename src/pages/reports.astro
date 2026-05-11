@@ -2,78 +2,64 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 <BaseLayout title="Reports - Patent Analysis Agent">
-  <div class="site-header">
-    <div class="site-brand">
-      <div class="logo-icon">P</div>
-      <div>
-        <div class="logo-text">Patent Analysis Agent</div>
-        <div class="logo-sub" data-key="subtitle">Reports</div>
-      </div>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">P</div>
+      <div class="brand-text">Patent Analysis<small>Agent System</small></div>
     </div>
-    <div style="display:flex;align-items:center;gap:0.75rem;">
-      <nav>
-        <a href="/" data-key="nav_new"></a>
-        <a href="/status" data-key="nav_status"></a>
-        <a href="/reports" class="active" data-key="nav_reports"></a>
-      </nav>
-      <button class="lang-switch" onclick="toggleLang()">
-        <span class="flag" id="langFlag">🇹🇼</span>
-        <span id="langLabel">EN</span>
-      </button>
+    <nav class="sidebar-nav">
+      <a href="/"><span class="icon">✨</span><span data-key="nav_new">新增分析</span></a>
+      <a href="/status"><span class="icon">📋</span><span data-key="nav_status">任务状态</span></a>
+      <a href="/reports" class="active"><span class="icon">📊</span><span data-key="nav_reports">报告列表</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="lang-switch" onclick="toggleLang()"><span id="langFlag">🇹🇼</span><span id="langLabel">EN</span></button>
     </div>
-  </div>
+  </aside>
 
-  <h1 data-key="title_reports"></h1>
-
-  <div class="card">
-    <div id="loading" data-key="loading"></div>
-    <div id="reports"></div>
-  </div>
+  <!-- Main -->
+  <main class="main">
+    <div class="page-header">
+      <h1 data-key="title_reports">分析报告</h1>
+    </div>
+    <div class="card">
+      <div id="loading" style="color:var(--text-muted);padding:1rem 0;">加载中...</div>
+      <div id="reports"></div>
+    </div>
+  </main>
 
   <script is:inline>
     const DICT = {
       zh: {
         nav_new: "新增分析", nav_status: "任务状态", nav_reports: "报告列表",
-        title_reports: "分析报告",
-        loading: "加载中...",
-        empty: "暂无报告",
-        error: "加载失败",
-        table_name: "报告名称",
-        table_size: "大小",
-        table_date: "日期",
-        table_view: "查看",
-        subtitle: "报告",
+        title_reports: "分析报告", loading: "加载中...", empty: "暂无报告", error: "加载失败",
+        table_name: "报告名称", table_size: "大小", table_date: "日期", table_view: "查看",
       },
       en: {
         nav_new: "New Analysis", nav_status: "Task Status", nav_reports: "Reports",
-        title_reports: "Analysis Reports",
-        loading: "Loading...",
-        empty: "No reports yet",
-        error: "Failed to load",
-        table_name: "Name",
-        table_size: "Size",
-        table_date: "Date",
-        table_view: "View",
-        subtitle: "Reports",
+        title_reports: "Analysis Reports", loading: "Loading...", empty: "No reports yet", error: "Failed to load",
+        table_name: "Name", table_size: "Size", table_date: "Date", table_view: "View",
       }
     };
 
-    let currentLang = localStorage.getItem('patent_lang') || 'zh';
+    let currentLang = localStorage.getItem('patent-lang') || 'zh';
 
-    function applyLang(lang) {
-      const d = DICT[lang];
+    function applyLanguage() {
+      const d = DICT[currentLang];
       document.querySelectorAll('[data-key]').forEach(el => {
-        const k = el.dataset.key;
-        if (d[k] !== undefined) el.textContent = d[k];
+        const key = el.getAttribute('data-key');
+        if (d[key]) el.textContent = d[key];
       });
-      document.getElementById('langFlag').textContent = lang === 'zh' ? '🇹🇼' : '🇺🇸';
-      document.getElementById('langLabel').textContent = lang === 'zh' ? 'EN' : '中文';
+      const lf = document.getElementById('langFlag'), ll = document.getElementById('langLabel');
+      if (lf) lf.textContent = currentLang === 'zh' ? '🇹🇼' : '🇺🇸';
+      if (ll) ll.textContent = currentLang === 'zh' ? 'EN' : '中文';
     }
 
     function toggleLang() {
       currentLang = currentLang === 'zh' ? 'en' : 'zh';
-      localStorage.setItem('patent_lang', currentLang);
-      applyLang(currentLang);
+      localStorage.setItem('patent-lang', currentLang);
+      applyLanguage();
       loadReports();
     }
 
@@ -94,19 +80,18 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       const container = document.getElementById('reports');
       const loading = document.getElementById('loading');
       const d = DICT[currentLang];
-      loading.style.display = 'block';
+      if (loading) loading.style.display = 'block';
       container.innerHTML = '';
 
       try {
         const resp = await fetch('/api/list-reports');
         const reports = await resp.json();
-        loading.style.display = 'none';
+        if (loading) loading.style.display = 'none';
 
         if (reports.error) {
           container.innerHTML = `<div class="result-msg error">${d.error}: ${reports.error}</div>`;
           return;
         }
-
         if (!reports.length) {
           container.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:2rem 0;">${d.empty}</p>`;
           return;
@@ -115,35 +100,32 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         const rows = reports.map(r => {
           const date = extractDate(r.name);
           return `<tr>
-            <td style="font-weight:500;word-break:break-all;">${r.name}</td>
+            <td style="font-weight:500;color:var(--text);word-break:break-all;">${r.name}</td>
             <td style="color:var(--text-muted);font-size:0.85rem;white-space:nowrap;">${formatSize(r.size)}</td>
             <td style="color:var(--text-muted);font-size:0.85rem;white-space:nowrap;">${date}</td>
-            <td><a href="${r.download_url || r.url}" target="_blank" class="link" style="font-size:0.85rem;">View →</a></td>
+            <td><a href="${r.download_url || r.url}" target="_blank" style="color:var(--accent);font-size:0.85rem;text-decoration:none;">View →</a></td>
           </tr>`;
         }).join('');
 
         container.innerHTML = `
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>${d.table_name}</th>
-                  <th style="width:80px">${d.table_size}</th>
-                  <th style="width:100px">${d.table_date}</th>
-                  <th style="width:80px">${d.table_view}</th>
-                </tr>
-              </thead>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead><tr>
+                <th>${d.table_name}</th>
+                <th style="width:80px">${d.table_size}</th>
+                <th style="width:100px">${d.table_date}</th>
+                <th style="width:80px">${d.table_view}</th>
+              </tr></thead>
               <tbody>${rows}</tbody>
             </table>
-          </div>
-        `;
+          </div>`;
       } catch (err) {
-        loading.style.display = 'none';
+        if (loading) loading.style.display = 'none';
         container.innerHTML = `<div class="result-msg error">${d.error}: ${err.message}</div>`;
       }
     }
 
-    applyLang(currentLang);
+    applyLanguage();
     loadReports();
   </script>
 </BaseLayout>
