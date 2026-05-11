@@ -1,21 +1,99 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
-<BaseLayout title="Reports">
-  <h1>Analysis Reports</h1>
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-      <span style="color:var(--text-muted);">Latest reports from GitHub repo</span>
-      <button class="btn btn-sm" onclick="loadReports()">Refresh</button>
+<BaseLayout title="Reports - Patent Analysis Agent">
+  <div class="site-header">
+    <div class="site-brand">
+      <div class="logo-icon">P</div>
+      <div>
+        <div class="logo-text">Patent Analysis Agent</div>
+        <div class="logo-sub" data-key="subtitle">Reports</div>
+      </div>
     </div>
-    <div id="loading">Loading reports...</div>
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <nav>
+        <a href="/" data-key="nav_new"></a>
+        <a href="/status" data-key="nav_status"></a>
+        <a href="/reports" class="active" data-key="nav_reports"></a>
+      </nav>
+      <button class="lang-switch" onclick="toggleLang()">
+        <span class="flag" id="langFlag">🇹🇼</span>
+        <span id="langLabel">EN</span>
+      </button>
+    </div>
+  </div>
+
+  <h1 data-key="title_reports"></h1>
+
+  <div class="card">
+    <div id="loading" data-key="loading"></div>
     <div id="reports"></div>
   </div>
 
-  <script>
+  <script is:inline>
+    const DICT = {
+      zh: {
+        nav_new: "新增分析", nav_status: "任务状态", nav_reports: "报告列表",
+        title_reports: "分析报告",
+        loading: "加载中...",
+        empty: "暂无报告",
+        error: "加载失败",
+        table_name: "报告名称",
+        table_size: "大小",
+        table_date: "日期",
+        table_view: "查看",
+        subtitle: "报告",
+      },
+      en: {
+        nav_new: "New Analysis", nav_status: "Task Status", nav_reports: "Reports",
+        title_reports: "Analysis Reports",
+        loading: "Loading...",
+        empty: "No reports yet",
+        error: "Failed to load",
+        table_name: "Name",
+        table_size: "Size",
+        table_date: "Date",
+        table_view: "View",
+        subtitle: "Reports",
+      }
+    };
+
+    let currentLang = localStorage.getItem('patent_lang') || 'zh';
+
+    function applyLang(lang) {
+      const d = DICT[lang];
+      document.querySelectorAll('[data-key]').forEach(el => {
+        const k = el.dataset.key;
+        if (d[k] !== undefined) el.textContent = d[k];
+      });
+      document.getElementById('langFlag').textContent = lang === 'zh' ? '🇹🇼' : '🇺🇸';
+      document.getElementById('langLabel').textContent = lang === 'zh' ? 'EN' : '中文';
+    }
+
+    function toggleLang() {
+      currentLang = currentLang === 'zh' ? 'en' : 'zh';
+      localStorage.setItem('patent_lang', currentLang);
+      applyLang(currentLang);
+      loadReports();
+    }
+
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function extractDate(name) {
+      const m = name.match(/(\d{8})/);
+      if (!m) return '';
+      const y = m[1].slice(0,4), mo = m[1].slice(4,6), d = m[1].slice(6,8);
+      return `${y}-${mo}-${d}`;
+    }
+
     async function loadReports() {
       const container = document.getElementById('reports');
       const loading = document.getElementById('loading');
+      const d = DICT[currentLang];
       loading.style.display = 'block';
       container.innerHTML = '';
 
@@ -24,35 +102,48 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         const reports = await resp.json();
         loading.style.display = 'none';
 
-        if (!reports.length) {
-          container.innerHTML = '<p style="color:var(--text-muted)">No reports yet. Submit an analysis to generate one.</p>';
+        if (reports.error) {
+          container.innerHTML = `<div class="result-msg error">${d.error}: ${reports.error}</div>`;
           return;
         }
 
-        const ul = document.createElement('ul');
-        ul.style.listStyle = 'none';
-        reports.forEach(r => {
-          const li = document.createElement('li');
-          li.style.padding = '0.75rem 0';
-          li.style.borderBottom = '1px solid var(--border)';
-          li.innerHTML = `
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <div>
-                <div style="font-weight:500;">${r.name}</div>
-                <div style="font-size:0.875rem;color:var(--text-muted);">${(r.size / 1024).toFixed(1)} KB</div>
-              </div>
-              <a href="${r.download_url || r.url}" target="_blank" class="btn btn-sm" style="text-decoration:none;">View &rarr;</a>
-            </div>
-          `;
-          ul.appendChild(li);
-        });
-        container.appendChild(ul);
+        if (!reports.length) {
+          container.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:2rem 0;">${d.empty}</p>`;
+          return;
+        }
+
+        const rows = reports.map(r => {
+          const date = extractDate(r.name);
+          return `<tr>
+            <td style="font-weight:500;word-break:break-all;">${r.name}</td>
+            <td style="color:var(--text-muted);font-size:0.85rem;white-space:nowrap;">${formatSize(r.size)}</td>
+            <td style="color:var(--text-muted);font-size:0.85rem;white-space:nowrap;">${date}</td>
+            <td><a href="${r.download_url || r.url}" target="_blank" class="link" style="font-size:0.85rem;">View →</a></td>
+          </tr>`;
+        }).join('');
+
+        container.innerHTML = `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>${d.table_name}</th>
+                  <th style="width:80px">${d.table_size}</th>
+                  <th style="width:100px">${d.table_date}</th>
+                  <th style="width:80px">${d.table_view}</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        `;
       } catch (err) {
         loading.style.display = 'none';
-        container.innerHTML = '<p style="color:var(--danger)">Error loading reports: ' + err.message + '</p>';
+        container.innerHTML = `<div class="result-msg error">${d.error}: ${err.message}</div>`;
       }
     }
 
+    applyLang(currentLang);
     loadReports();
   </script>
 </BaseLayout>
