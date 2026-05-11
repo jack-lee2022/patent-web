@@ -1,0 +1,11 @@
+# Cloudflare Pages configuration for patent-web
+# Astro static site with Cloudflare Functions
+
+name = "patent-web"
+compatibility_date = "2024-05-01"
+
+# Build output directory for Astro static build
+pages_build_output_dir = "dist"
+
+# Cloudflare Functions directory (default: functions/)
+# Our API endpoints are in functions/api/
