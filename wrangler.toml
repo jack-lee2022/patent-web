@@ -9,3 +9,7 @@ pages_build_output_dir = "dist"
 
 # Cloudflare Functions directory (default: functions/)
 # Our API endpoints are in functions/api/
+
+# Environment variables (non-secret)
+[vars]
+GITHUB_REPO = "jack-lee2022/patent_agent"
