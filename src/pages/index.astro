@@ -12,6 +12,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           <option value="sota">State of the Art (SOTA) - Technology Landscape</option>
           <option value="patentability">Patentability - Novelty Assessment</option>
           <option value="fto">Freedom to Operate (FTO) - Infringement Risk</option>
+          <option value="structured">Structured Analysis - Per-Patent Deep Dive</option>
         </select>
       </div>
 
@@ -55,6 +56,22 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         </div>
       </div>
 
+      <!-- Structured fields -->
+      <div id="structured-fields" style="display:none;">
+        <div class="form-group">
+          <label>Search Query (optional - search patents by keyword)</label>
+          <input type="text" name="query" placeholder="e.g. nasal dilator, negative pressure, etc." />
+        </div>
+        <div class="form-group">
+          <label>Specific Patent IDs (optional - comma-separated)</label>
+          <input type="text" name="patent_ids" placeholder="e.g. US11311692B2, EP2881090B1" />
+        </div>
+        <div class="form-group">
+          <label>Max Patents to Analyze</label>
+          <input type="number" name="max_results_structured" value="10" min="1" max="50" />
+        </div>
+      </div>
+
       <div class="form-group">
         <label>Max Results</label>
         <input type="number" name="max_results" value="50" min="10" max="200" />
@@ -71,12 +88,15 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       sota: document.getElementById('sota-fields'),
       patentability: document.getElementById('patentability-fields'),
       fto: document.getElementById('fto-fields'),
+      structured: document.getElementById('structured-fields'),
     };
 
     function updateFields() {
       const mode = modeSelect.value;
       Object.values(fields).forEach(el => el.style.display = 'none');
-      fields[mode].style.display = 'block';
+      if (fields[mode]) {
+        fields[mode].style.display = 'block';
+      }
     }
 
     modeSelect.addEventListener('change', updateFields);
@@ -104,6 +124,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         payload.product = form.product.value;
         payload.markets = form.markets.value.split(',').map(s => s.trim());
         payload.assignees = form.assignees.value.split(',').map(s => s.trim()).filter(Boolean);
+      } else if (mode === 'structured') {
+        payload.query = form.query.value || null;
+        const ids = form.patent_ids.value;
+        payload.patent_ids = ids ? ids.split(',').map(s => s.trim()).filter(Boolean) : null;
+        payload.max_results = parseInt(form.max_results_structured.value);
       }
 
       try {
