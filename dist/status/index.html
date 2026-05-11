@@ -73,7 +73,7 @@
           const st = stateMap[label] || stateMap.pending;
           return `<tr>
             <td><span class="badge ${st.cls}">${st.label}</span></td>
-            <td style="font-weight:500;color:var(--text);">${t.title.replace(/^\[[A-Z]+\]\s*/, '')}</td>
+            <td style="font-weight:500;color:var(--text);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${t.title.replace(/"/g,'&quot;')}">${t.title.replace(/^\[[A-Z]+\]\s*/, '')}</td>
             <td style="color:var(--text-muted);font-size:0.8rem;white-space:nowrap;">${formatDate(t.created_at)}</td>
             <td><a href="${t.url}" target="_blank" style="color:var(--accent);font-size:0.85rem;text-decoration:none;">GitHub →</a></td>
           </tr>`;

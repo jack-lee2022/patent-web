@@ -28,6 +28,19 @@ const t = {
     subtitle_patentability: "评估发明的新颖性、创造性和可专利性",
     subtitle_fto: "分析产品是否侵犯现有专利权",
     subtitle_structured: "对单个专利进行深度结构化分析",
+    scenario_sota_1: "公司进入新市场，摸底技术领域主要玩家",
+    scenario_sota_2: "投资人做 Due Diligence，评估目标公司技术护城河",
+    scenario_sota_3: "研发团队启动新项目前了解现有技术发展",
+    scenario_patentability_1: "工程师发明了新方法，想评估是否具备新颖性",
+    scenario_patentability_2: "准备专利申请前，先做 prior art 检索",
+    scenario_patentability_3: "专利代理人帮客户评估发明点的可专利空间",
+    scenario_fto_1: "产品上市前的专利侵权风险评估",
+    scenario_fto_2: "并购交易中的 IP Due Diligence",
+    scenario_fto_3: "竞品分析时确认自己的技术路线是否安全",
+    scenario_structured_1: "收到专利侵权警告信，需要详细分析对方专利",
+    scenario_structured_2: "专利许可谈判前，评估专利价值",
+    scenario_structured_3: "准备专利无效请求，逐条分析权利要求",
+    select_mode_hint: "点击上方卡片选择分析模式",
   },
   en: {
     nav_new: "New Analysis", nav_status: "Task Status", nav_reports: "Reports",
@@ -56,6 +69,19 @@ const t = {
     subtitle_patentability: "Assess novelty, inventiveness, and patentability of an invention",
     subtitle_fto: "Analyze whether a product infringes existing patents",
     subtitle_structured: "Perform deep structured analysis on a single patent",
+    scenario_sota_1: "Company entering new market, mapping key players in the tech field",
+    scenario_sota_2: "Investor Due Diligence, assessing target company's tech moat",
+    scenario_sota_3: "R&D team scoping existing technology before new project kickoff",
+    scenario_patentability_1: "Engineer invented a new method, wants to assess novelty",
+    scenario_patentability_2: "Prior art search before patent application filing",
+    scenario_patentability_3: "Patent attorney evaluating client's invention for patentability",
+    scenario_fto_1: "Pre-launch patent infringement risk assessment",
+    scenario_fto_2: "IP Due Diligence in M&A transactions",
+    scenario_fto_3: "Competitive analysis to confirm safe technology route",
+    scenario_structured_1: "Received patent infringement notice, need detailed claim analysis",
+    scenario_structured_2: "Patent license negotiation, evaluating patent value",
+    scenario_structured_3: "Preparing invalidation request, analyzing claims element by element",
+    select_mode_hint: "Click a card above to select analysis mode",
   }
 };
 ---
@@ -100,15 +126,52 @@ const t = {
 
     <div class="card">
       <form id="analysisForm">
-        <!-- Analysis Mode -->
+        <!-- Analysis Mode Cards -->
         <div class="form-section">
           <label class="form-label" data-key="label_mode">分析模式</label>
-          <select id="mode" name="mode" class="form-select mode-select" required>
-            <option value="sota" data-key="mode_sota">技术全景 (SOTA)</option>
-            <option value="patentability" data-key="mode_patentability">可专利性评估</option>
-            <option value="fto" data-key="mode_fto">自由实施 (FTO)</option>
-            <option value="structured" data-key="mode_structured">结构化分析</option>
-          </select>
+          <input type="hidden" id="mode" name="mode" value="sota" />
+          <div class="mode-grid">
+            <div class="mode-card active" data-mode="sota" onclick="selectMode('sota')">
+              <div class="mode-icon">🌍</div>
+              <div class="mode-name" data-key="mode_sota">技术全景 (SOTA)</div>
+              <div class="mode-desc" data-key="subtitle_sota">探索特定领域的技术全景与专利布局</div>
+              <ul class="mode-scenarios">
+                <li data-key="scenario_sota_1">公司进入新市场，摸底技术领域主要玩家</li>
+                <li data-key="scenario_sota_2">投资人做 Due Diligence</li>
+                <li data-key="scenario_sota_3">研发团队启动新项目前了解现有技术</li>
+              </ul>
+            </div>
+            <div class="mode-card" data-mode="patentability" onclick="selectMode('patentability')">
+              <div class="mode-icon">💡</div>
+              <div class="mode-name" data-key="mode_patentability">可专利性评估</div>
+              <div class="mode-desc" data-key="subtitle_patentability">评估发明的新颖性、创造性和可专利性</div>
+              <ul class="mode-scenarios">
+                <li data-key="scenario_patentability_1">工程师发明了新方法，想评估是否具备新颖性</li>
+                <li data-key="scenario_patentability_2">准备专利申请前先做 prior art 检索</li>
+                <li data-key="scenario_patentability_3">专利代理人帮客户评估发明点</li>
+              </ul>
+            </div>
+            <div class="mode-card" data-mode="fto" onclick="selectMode('fto')">
+              <div class="mode-icon">🛡️</div>
+              <div class="mode-name" data-key="mode_fto">自由实施 (FTO)</div>
+              <div class="mode-desc" data-key="subtitle_fto">分析产品是否侵犯现有专利权</div>
+              <ul class="mode-scenarios">
+                <li data-key="scenario_fto_1">产品上市前的专利侵权风险评估</li>
+                <li data-key="scenario_fto_2">并购交易中的 IP Due Diligence</li>
+                <li data-key="scenario_fto_3">竞品分析时确认技术路线是否安全</li>
+              </ul>
+            </div>
+            <div class="mode-card" data-mode="structured" onclick="selectMode('structured')">
+              <div class="mode-icon">🔍</div>
+              <div class="mode-name" data-key="mode_structured">结构化分析</div>
+              <div class="mode-desc" data-key="subtitle_structured">对单个专利进行深度结构化分析</div>
+              <ul class="mode-scenarios">
+                <li data-key="scenario_structured_1">收到专利侵权警告信，需要详细分析对方专利</li>
+                <li data-key="scenario_structured_2">专利许可谈判前评估专利价值</li>
+                <li data-key="scenario_structured_3">准备专利无效请求，逐条分析权利要求</li>
+              </ul>
+            </div>
+          </div>
         </div>
 
         <div class="divider"></div>
@@ -291,7 +354,7 @@ const t = {
     }
 
     // Mode switching
-    const modeSelect = document.getElementById('mode');
+    const modeInput = document.getElementById('mode');
     const sections = {
       sota: document.getElementById('sota-fields'),
       patentability: document.getElementById('patentability-fields'),
@@ -299,13 +362,17 @@ const t = {
       structured: document.getElementById('structured-fields')
     };
 
-    function switchMode() {
-      const mode = modeSelect.value;
+    function selectMode(mode) {
+      modeInput.value = mode;
+      document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+      document.querySelector('.mode-card[data-mode="' + mode + '"]').classList.add('active');
       Object.values(sections).forEach(s => s.style.display = 'none');
       if (sections[mode]) sections[mode].style.display = 'block';
     }
 
-    modeSelect.addEventListener('change', switchMode);
+    function switchMode() {
+      selectMode(modeInput.value);
+    }
 
     // Submit
     document.getElementById('analysisForm').addEventListener('submit', async function(e) {
