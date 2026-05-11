@@ -1,193 +1,144 @@
-<!DOCTYPE html><html lang="zh-TW"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Patent Analysis Agent</title><link rel="stylesheet" href="/styles/global.css"></head> <body> <div class="container">  <div class="site-header"> <div class="site-brand"> <div class="logo-icon">P</div> <div> <div class="logo-text">Patent Analysis Agent</div> <div class="logo-sub" data-key="subtitle_sota"></div> </div> </div> <div style="display:flex;align-items:center;gap:0.75rem;"> <nav> <a href="/" class="active" data-key="nav_new"></a> <a href="/status" data-key="nav_status"></a> <a href="/reports" data-key="nav_reports"></a> </nav> <button class="lang-switch" onclick="toggleLang()" title="Switch language"> <span class="flag" id="langFlag">🇹🇼</span> <span id="langLabel">EN</span> </button> </div> </div> <h1> <span data-key="title_new"></span> <span class="subtitle" id="modeSubtitle"></span> </h1> <div class="card"> <form id="analysisForm"> <div class="form-group"> <label data-key="label_mode"></label> <select id="mode" name="mode" class="mode-select" required> <option value="sota" data-key="mode_sota"></option> <option value="patentability" data-key="mode_patentability"></option> <option value="fto" data-key="mode_fto"></option> <option value="structured" data-key="mode_structured"></option> </select> </div> <!-- SOTA fields --> <div id="sota-fields" class="field-section"> <div class="form-group"> <label data-key="label_topic"></label> <textarea name="topic" class="xl" placeholder="" data-placeholder-key="placeholder_topic"></textarea> </div> <div class="form-group"> <label data-key="label_keywords"></label> <textarea name="keywords" class="lg" placeholder="" data-placeholder-key="placeholder_keywords"></textarea> <p class="info-text" style="display:none;" id="keywordsHint">多個關鍵詞請用空格分隔 / Multiple keywords separated by spaces</p> </div> </div> <!-- Patentability fields --> <div id="patentability-fields" class="field-section" style="display:none;"> <div class="form-group"> <label data-key="label_invention"></label> <textarea name="invention" class="xl" placeholder="" data-placeholder-key="placeholder_invention"></textarea> </div> <div class="form-group"> <label data-key="label_field"></label> <input type="text" name="field" placeholder="" data-placeholder-key="placeholder_field"> </div> </div> <!-- FTO fields --> <div id="fto-fields" class="field-section" style="display:none;"> <div class="form-group"> <label data-key="label_product"></label> <textarea name="product" class="xl" placeholder="" data-placeholder-key="placeholder_product"></textarea> </div> <div class="form-group"> <label data-key="label_markets"></label> <input type="text" name="markets" value="US, TW, EP" placeholder="" data-placeholder-key="placeholder_markets"> </div> <div class="form-group"> <label data-key="label_assignees"></label> <input type="text" name="assignees" placeholder="" data-placeholder-key="placeholder_assignees"> </div> </div> <!-- Structured fields --> <div id="structured-fields" class="field-section" style="display:none;"> <div class="form-group"> <label data-key="label_query"></label> <input type="text" name="query" placeholder="" data-placeholder-key="placeholder_query"> </div> <div class="form-group"> <label data-key="label_patent_ids"></label> <input type="text" name="patent_ids" placeholder="" data-placeholder-key="placeholder_patent_ids"> </div> <div class="form-group"> <label data-key="label_max_structured"></label> <input type="number" name="max_results_structured" value="10" min="1" max="50"> </div> </div> <div class="form-group"> <label data-key="label_max_results"></label> <input type="number" name="max_results" value="50" min="10" max="200"> </div> <button type="submit" class="btn btn-block" id="submitBtn"> <span data-key="btn_submit"></span> </button> <div id="result"></div> </form> </div> <script>
+<!DOCTYPE html><html lang="zh-TW"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Patent Analysis Agent</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/styles/global.css"></head> <body> <div class="app">   <aside class="sidebar"> <div class="sidebar-brand"> <div class="logo">P</div> <div class="brand-text">
+Patent Analysis
+<small>Agent System</small> </div> </div> <nav class="sidebar-nav"> <a href="/" class="active"> <span class="icon">✨</span> <span data-key="nav_new">新增分析</span> </a> <a href="/status"> <span class="icon">📋</span> <span data-key="nav_status">任务状态</span> </a> <a href="/reports"> <span class="icon">📊</span> <span data-key="nav_reports">报告列表</span> </a> </nav> <div class="sidebar-footer"> <button class="lang-switch" onclick="toggleLang()"> <span id="langFlag">🇹🇼</span> <span id="langLabel">EN</span> </button> </div> </aside>  <main class="main"> <div class="page-header"> <h1 data-key="title_new">新增分析请求</h1> <p class="page-desc" data-key="desc_new">选择分析模式并填写技术信息，系统将自动搜索相关专利并生成深度分析报告。</p> </div> <div class="card"> <form id="analysisForm"> <!-- Analysis Mode --> <div class="form-section"> <label class="form-label" data-key="label_mode">分析模式</label> <select id="mode" name="mode" class="form-select mode-select" required> <option value="sota" data-key="mode_sota">技术全景 (SOTA)</option> <option value="patentability" data-key="mode_patentability">可专利性评估</option> <option value="fto" data-key="mode_fto">自由实施 (FTO)</option> <option value="structured" data-key="mode_structured">结构化分析</option> </select> </div> <div class="divider"></div> <!-- SOTA Fields --> <div id="sota-fields" class="field-section"> <div class="form-section"> <label class="form-label"> <span data-key="label_topic">技术主题</span> <span class="required">*</span> </label> <textarea name="topic" class="form-textarea xl" placeholder="" data-placeholder-key="placeholder_topic" required></textarea> </div> <div class="form-section"> <label class="form-label" data-key="label_keywords">附加关键词</label> <textarea name="keywords" class="form-textarea lg" placeholder="" data-placeholder-key="placeholder_keywords"></textarea> <p class="form-hint" data-key="hint_keywords">多个关键词请用空格分隔</p> </div> </div> <!-- Patentability Fields --> <div id="patentability-fields" class="field-section" style="display:none;"> <div class="form-section"> <label class="form-label"> <span data-key="label_invention">发明描述</span> <span class="required">*</span> </label> <textarea name="invention" class="form-textarea xl" placeholder="" data-placeholder-key="placeholder_invention" required></textarea> </div> <div class="form-section"> <label class="form-label" data-key="label_field">技术领域</label> <input type="text" name="field" class="form-input" placeholder="" data-placeholder-key="placeholder_field"> </div> </div> <!-- FTO Fields --> <div id="fto-fields" class="field-section" style="display:none;"> <div class="form-section"> <label class="form-label"> <span data-key="label_product">产品描述</span> <span class="required">*</span> </label> <textarea name="product" class="form-textarea xl" placeholder="" data-placeholder-key="placeholder_product" required></textarea> </div> <div class="form-row"> <div class="form-section"> <label class="form-label" data-key="label_markets">目标市场</label> <input type="text" name="markets" class="form-input" value="US, TW, EP" placeholder="" data-placeholder-key="placeholder_markets"> <p class="form-hint" data-key="hint_markets">市场代码用逗号分隔</p> </div> <div class="form-section"> <label class="form-label" data-key="label_assignees">目标公司</label> <input type="text" name="assignees" class="form-input" placeholder="" data-placeholder-key="placeholder_assignees"> </div> </div> </div> <!-- Structured Fields --> <div id="structured-fields" class="field-section" style="display:none;"> <div class="form-section"> <label class="form-label"> <span data-key="label_query">检索查询</span> <span class="required">*</span> </label> <input type="text" name="query" class="form-input" placeholder="" data-placeholder-key="placeholder_query" required> </div> <div class="form-section"> <label class="form-label" data-key="label_patent_ids">专利号码</label> <input type="text" name="patent_ids" class="form-input" placeholder="" data-placeholder-key="placeholder_patent_ids"> <p class="form-hint" data-key="hint_patent_ids">专利号码用逗号分隔</p> </div> <div class="form-section" style="max-width: 200px;"> <label class="form-label" data-key="label_max_structured">最大专利数</label> <input type="number" name="max_results_structured" class="form-input" value="10" min="1" max="50"> </div> </div> <div class="divider"></div> <!-- Max Results (common) --> <div class="form-section" style="max-width: 200px;"> <label class="form-label" data-key="label_max_results">最大结果数</label> <input type="number" name="max_results" class="form-input" value="50" min="10" max="200"> </div> <button type="submit" class="btn btn-block" id="submitBtn" data-key="btn_submit">
+提交分析请求
+</button> <div id="result"></div> </form> </div> </main> <script>
     const DICT = {
       zh: {
-        nav_new: "\u65b0\u589e\u5206\u6790", nav_status: "\u4efb\u52d9\u72c0\u614b", nav_reports: "\u5831\u544a\u5217\u8868",
-        title_new: "\u5c08\u5229\u5206\u6790\u8acb\u6c42",
-        label_mode: "\u5206\u6790\u6a21\u5f0f", label_topic: "\u6280\u8853\u4e3b\u984c",
-        label_keywords: "\u9644\u52a0\u95dc\u9375\u8a5e\uff08\u9078\u586b\uff0c\u7a7a\u683c\u5206\u9694\uff09",
-        label_invention: "\u767c\u660e\u63cf\u8ff0", label_field: "\u6280\u8853\u9818\u57df",
-        label_product: "\u7522\u54c1\u540d\u7a31 / \u63cf\u8ff0",
-        label_markets: "\u76ee\u6a19\u5e02\u5834\uff08\u9017\u865f\u5206\u9694\uff09",
-        label_assignees: "\u76ee\u6a19\u7533\u8acb\u4eba / \u7af6\u722d\u5c0d\u624b\uff08\u9078\u586b\uff09",
-        label_query: "\u641c\u5c0b\u67e5\u8a62\uff08\u9078\u586b - \u6309\u95dc\u9375\u8a5e\u641c\u5c0b\u5c08\u5229\uff09",
-        label_patent_ids: "\u6307\u5b9a\u5c08\u5229\u7de8\u865f\uff08\u9078\u586b - \u9017\u865f\u5206\u9694\uff09",
-        label_max_structured: "\u6700\u591a\u5206\u6790\u5c08\u5229\u6578",
-        label_max_results: "\u6700\u591a\u7d50\u679c\u6578",
-        btn_submit: "\u63d0\u4ea4\u5206\u6790\u8acb\u6c42",
-        btn_submitting: "\u63d0\u4ea4\u4e2d...",
-        placeholder_topic: "\u8acb\u8f38\u5165\u6280\u8853\u4e3b\u984c\uff0c\u4f8b\u5982\uff1a\u8ca0\u58d3\u7642\u6cd5\u3001\u7761\u7720\u547c\u5438\u4e2d\u6b62...",
-        placeholder_keywords: "\u4f8b\u5982\uff1a\u53e3\u8154\u88dd\u7f6e \u7121\u9762\u7f69 \u9f3b\u8154\u64f4\u5f35\u5668",
-        placeholder_invention: "\u8acb\u8a73\u7d30\u63cf\u8ff0\u60a8\u7684\u767c\u660e...",
-        placeholder_product: "\u8acb\u63cf\u8ff0\u60a8\u60f3\u8981\u8a55\u4f30\u7684\u7522\u54c1...",
-        placeholder_query: "\u4f8b\u5982\uff1a\u9f3b\u8154\u64f4\u5f35\u5668\u3001\u8ca0\u58d3\u7642\u6cd5\u7b49...",
-        placeholder_patent_ids: "\u4f8b\u5982\uff1aUS11311692B2, EP2881090B1",
-        placeholder_field: "\u4f8b\u5982\uff1a\u9f3b\u8154\u64f4\u5f35\u5668",
-        placeholder_markets: "US, TW, EP",
-        placeholder_assignees: "\u4f8b\u5982\uff1aResMed, Philips",
-        mode_sota: "\u6280\u8853\u5168\u666f (SOTA) - \u6280\u8853\u614b\u52e2\u5206\u6790",
-        mode_patentability: "\u53ef\u5c08\u5229\u6027\u8a55\u4f30 - \u65b0\u7a4e\u6027\u5206\u6790",
-        mode_fto: "\u81ea\u7531\u5be6\u65bd (FTO) - \u4fb5\u6b0a\u98a8\u96aa\u8a55\u4f30",
-        mode_structured: "\u7d50\u69cb\u5316\u5206\u6790 - \u55ae\u4e00\u5c08\u5229\u6df1\u5ea6\u5206\u6790",
-        result_created: "\u4efb\u52d9\u5df2\u5275\u5efa\uff01",
-        result_view: "\u67e5\u770b\u72c0\u614b \u2192",
-        subtitle_sota: "\u6280\u8853\u5168\u666f\u641c\u5c0b\uff1a\u63a2\u7d22\u7279\u5b9a\u6280\u8853\u9818\u57df\u7684\u5c08\u5229\u683c\u5c40",
-        subtitle_patentability: "\u8a55\u4f30\u767c\u660e\u7684\u65b0\u7a4e\u6027\u548c\u5275\u9020\u6027",
-        subtitle_fto: "\u8a55\u4f30\u7522\u54c1\u662f\u5426\u4fb5\u72af\u73fe\u6709\u5c08\u5229\u6b0a",
-        subtitle_structured: "\u5c0d\u6307\u5b9a\u5c08\u5229\u9032\u884c\u9010\u689d\u6b0a\u5229\u8981\u6c42\u6df1\u5ea6\u5206\u6790",
+        nav_new: "新增分析", nav_status: "任务状态", nav_reports: "报告列表",
+        title_new: "新增分析请求",
+        desc_new: "选择分析模式并填写技术信息，系统将自动搜索相关专利并生成深度分析报告。",
+        label_mode: "分析模式", label_topic: "技术主题", label_keywords: "附加关键词",
+        label_invention: "发明描述", label_field: "技术领域",
+        label_product: "产品描述", label_markets: "目标市场", label_assignees: "目标公司",
+        label_query: "检索查询", label_patent_ids: "专利号码",
+        label_max_results: "最大结果数", label_max_structured: "最大专利数",
+        placeholder_topic: "输入技术主题，例如：negative pressure therapy",
+        placeholder_keywords: "例如：oral device mask-free nasal",
+        placeholder_invention: "详细描述您的发明，包括解决的问题、技术方案和预期效果...",
+        placeholder_field: "例如：medical device, sleep therapy",
+        placeholder_product: "描述您的产品特征、功能和应用场景...",
+        placeholder_markets: "US, TW, EP, CN, JP",
+        placeholder_assignees: "例如：Somnics, ResMed, Philips",
+        placeholder_query: "例如：negative pressure therapy sleep apnea",
+        placeholder_patent_ids: "WO2019123456, US10/123,456",
+        hint_keywords: "多个关键词请用空格分隔",
+        hint_markets: "市场代码用逗号分隔，例如：US, TW, EP",
+        hint_patent_ids: "专利号码用逗号分隔",
+        btn_submit: "提交分析请求",
+        mode_sota: "技术全景 (SOTA)", mode_patentability: "可专利性评估", mode_fto: "自由实施 (FTO)", mode_structured: "结构化分析",
+        subtitle_sota: "探索特定领域的技术全景与专利布局",
+        subtitle_patentability: "评估发明的新颖性、创造性和可专利性",
+        subtitle_fto: "分析产品是否侵犯现有专利权",
+        subtitle_structured: "对单个专利进行深度结构化分析",
       },
       en: {
         nav_new: "New Analysis", nav_status: "Task Status", nav_reports: "Reports",
-        title_new: "Patent Analysis Request",
-        label_mode: "Analysis Mode", label_topic: "Technology Topic",
-        label_keywords: "Additional Keywords (optional, space-separated)",
-        label_invention: "Proposed Invention Description", label_field: "Technical Field",
-        label_product: "Product Name / Description",
-        label_markets: "Target Markets (comma-separated)",
-        label_assignees: "Target Assignees / Competitors (optional)",
-        label_query: "Search Query (optional - search patents by keyword)",
-        label_patent_ids: "Specific Patent IDs (optional - comma-separated)",
-        label_max_structured: "Max Patents to Analyze",
-        label_max_results: "Max Results",
+        title_new: "New Analysis Request",
+        desc_new: "Select analysis mode and enter technical information. The system will automatically search relevant patents and generate a comprehensive analysis report.",
+        label_mode: "Analysis Mode", label_topic: "Technology Topic", label_keywords: "Additional Keywords",
+        label_invention: "Invention Description", label_field: "Technical Field",
+        label_product: "Product Description", label_markets: "Target Markets", label_assignees: "Target Companies",
+        label_query: "Search Query", label_patent_ids: "Patent Numbers",
+        label_max_results: "Max Results", label_max_structured: "Max Patents",
+        placeholder_topic: "Enter technology topic, e.g. negative pressure therapy",
+        placeholder_keywords: "e.g. oral device mask-free nasal",
+        placeholder_invention: "Describe your invention in detail, including the problem solved, technical approach, and expected effects...",
+        placeholder_field: "e.g. medical device, sleep therapy",
+        placeholder_product: "Describe your product features, functions, and use cases...",
+        placeholder_markets: "US, TW, EP, CN, JP",
+        placeholder_assignees: "e.g. Somnics, ResMed, Philips",
+        placeholder_query: "e.g. negative pressure therapy sleep apnea",
+        placeholder_patent_ids: "WO2019123456, US10/123,456",
+        hint_keywords: "Multiple keywords separated by spaces",
+        hint_markets: "Market codes separated by commas, e.g. US, TW, EP",
+        hint_patent_ids: "Patent numbers separated by commas",
         btn_submit: "Submit Analysis Request",
-        btn_submitting: "Submitting...",
-        placeholder_topic: "Enter technology topic, e.g. negative pressure therapy, sleep apnea...",
-        placeholder_keywords: "e.g. oral device mask-free nasal dilator",
-        placeholder_invention: "Describe your invention in detail...",
-        placeholder_product: "Describe the product you want to evaluate...",
-        placeholder_query: "e.g. nasal dilator, negative pressure, etc.",
-        placeholder_patent_ids: "e.g. US11311692B2, EP2881090B1",
-        placeholder_field: "e.g. nasal dilator",
-        placeholder_markets: "US, TW, EP",
-        placeholder_assignees: "e.g. ResMed, Philips",
-        mode_sota: "State of the Art (SOTA) - Technology Landscape",
-        mode_patentability: "Patentability - Novelty Assessment",
-        mode_fto: "Freedom to Operate (FTO) - Infringement Risk",
-        mode_structured: "Structured Analysis - Per-Patent Deep Dive",
-        result_created: "Task created!",
-        result_view: "View status \u2192",
-        subtitle_sota: "Technology Landscape: Explore patent landscape in a specific field",
-        subtitle_patentability: "Assess novelty and inventive step of an invention",
-        subtitle_fto: "Evaluate whether a product infringes existing patents",
-        subtitle_structured: "Deep-dive claim-by-claim analysis of specified patents",
+        mode_sota: "State of the Art (SOTA)", mode_patentability: "Patentability Assessment", mode_fto: "Freedom to Operate (FTO)", mode_structured: "Structured Analysis",
+        subtitle_sota: "Explore the technology landscape and patent distribution in a specific field",
+        subtitle_patentability: "Assess novelty, inventiveness, and patentability of an invention",
+        subtitle_fto: "Analyze whether a product infringes existing patents",
+        subtitle_structured: "Perform deep structured analysis on a single patent",
       }
     };
 
-    const SUBTITLES = {
-      sota: { zh: "\u6280\u8853\u5168\u666f\u641c\u5c0b\uff1a\u63a2\u7d22\u7279\u5b9a\u6280\u8853\u9818\u57df\u7684\u5c08\u5229\u683c\u5c40", en: "Technology Landscape: Explore patent landscape" },
-      patentability: { zh: "\u8a55\u4f30\u767c\u660e\u7684\u65b0\u7a4e\u6027\u548c\u5275\u9020\u6027", en: "Assess novelty and inventive step" },
-      fto: { zh: "\u8a55\u4f30\u7522\u54c1\u662f\u5426\u4fb5\u72af\u73fe\u6709\u5c08\u5229\u6b0a", en: "Evaluate infringement risk" },
-      structured: { zh: "\u5c0d\u6307\u5b9a\u5c08\u5229\u9032\u884c\u9010\u689d\u6b0a\u5229\u8981\u6c42\u6df1\u5ea6\u5206\u6790", en: "Claim-by-claim deep dive analysis" },
-    };
+    let currentLang = localStorage.getItem('patent-lang') || 'zh';
 
-    let currentLang = localStorage.getItem('patent_lang') || 'zh';
-
-    function applyLang(lang) {
-      const d = DICT[lang];
+    function applyLanguage() {
+      const d = DICT[currentLang];
       document.querySelectorAll('[data-key]').forEach(el => {
-        const k = el.dataset.key;
-        if (d[k] !== undefined) el.textContent = d[k];
+        const key = el.getAttribute('data-key');
+        if (d[key]) el.textContent = d[key];
       });
       document.querySelectorAll('[data-placeholder-key]').forEach(el => {
-        const k = el.dataset.placeholderKey;
-        if (d[k] !== undefined) el.placeholder = d[k];
+        const key = el.getAttribute('data-placeholder-key');
+        if (d[key]) el.placeholder = d[key];
       });
-      // Update mode select options
-      document.querySelectorAll('#mode option').forEach(opt => {
-        const k = 'mode_' + opt.value;
-        if (d[k] !== undefined) opt.textContent = d[k];
-      });
-      // Update subtitle
-      const mode = document.getElementById('mode').value;
-      const sub = SUBTITLES[mode] || SUBTITLES.sota;
-      document.getElementById('modeSubtitle').textContent = sub[lang];
-      // Update flag and label
-      document.getElementById('langFlag').textContent = lang === 'zh' ? '\ud83c\uddf9\ud83c\uddfc' : '\ud83c\uddfa\ud83c\uddf8';
-      document.getElementById('langLabel').textContent = lang === 'zh' ? 'EN' : '\u4e2d\u6587';
-      document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
+
+      const flag = document.getElementById('langFlag');
+      const label = document.getElementById('langLabel');
+      if (flag) flag.textContent = currentLang === 'zh' ? '🇹🇼' : '🇺🇸';
+      if (label) label.textContent = currentLang === 'zh' ? 'EN' : '中文';
+
+      document.documentElement.lang = currentLang === 'zh' ? 'zh-TW' : 'en';
     }
 
     function toggleLang() {
       currentLang = currentLang === 'zh' ? 'en' : 'zh';
-      localStorage.setItem('patent_lang', currentLang);
-      applyLang(currentLang);
+      localStorage.setItem('patent-lang', currentLang);
+      applyLanguage();
     }
 
-    // Initialize
-    applyLang(currentLang);
-
-    // Mode switcher
+    // Mode switching
     const modeSelect = document.getElementById('mode');
-    const fields = {
+    const sections = {
       sota: document.getElementById('sota-fields'),
       patentability: document.getElementById('patentability-fields'),
       fto: document.getElementById('fto-fields'),
-      structured: document.getElementById('structured-fields'),
+      structured: document.getElementById('structured-fields')
     };
 
-    function updateFields() {
+    function switchMode() {
       const mode = modeSelect.value;
-      Object.values(fields).forEach(el => el.style.display = 'none');
-      if (fields[mode]) {
-        fields[mode].style.display = 'block';
-      }
-      // Update subtitle
-      const sub = SUBTITLES[mode];
-      if (sub) {
-        document.getElementById('modeSubtitle').textContent = sub[currentLang];
-      }
+      Object.values(sections).forEach(s => s.style.display = 'none');
+      if (sections[mode]) sections[mode].style.display = 'block';
     }
 
-    modeSelect.addEventListener('change', updateFields);
-    updateFields();
+    modeSelect.addEventListener('change', switchMode);
 
-    // Form submit
-    document.getElementById('analysisForm').addEventListener('submit', async (e) => {
+    // Submit
+    document.getElementById('analysisForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('submitBtn');
       const result = document.getElementById('result');
-      const d = DICT[currentLang];
       btn.disabled = true;
-      btn.querySelector('span').textContent = d.btn_submitting;
-      result.innerHTML = '';
+      btn.textContent = currentLang === 'zh' ? '提交中...' : 'Submitting...';
 
-      const form = e.target;
-      const mode = form.mode.value;
-      const payload = { mode, max_results: parseInt(form.max_results.value) };
-
-      if (mode === 'sota') {
-        payload.topic = form.topic.value;
-        payload.keywords = form.keywords.value.split(/[\s,]+/).filter(Boolean);
-      } else if (mode === 'patentability') {
-        payload.invention = form.invention.value;
-        payload.field = form.field.value;
-      } else if (mode === 'fto') {
-        payload.product = form.product.value;
-        payload.markets = form.markets.value.split(',').map(s => s.trim());
-        payload.assignees = form.assignees.value.split(',').map(s => s.trim()).filter(Boolean);
-      } else if (mode === 'structured') {
-        payload.query = form.query.value || null;
-        const ids = form.patent_ids.value;
-        payload.patent_ids = ids ? ids.split(',').map(s => s.trim()).filter(Boolean) : null;
-        payload.max_results = parseInt(form.max_results_structured.value);
-      }
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
+      data.mode = modeSelect.value;
 
       try {
-        const resp = await fetch('/api/create-task', {
+        const res = await fetch('/api/create-task', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(data)
         });
-        const data = await resp.json();
-        if (data.success) {
-          result.innerHTML = `<div class="result-msg">${d.result_created} <a href="${data.url}" target="_blank" class="link">Issue #${data.issue_number}</a>. <a href="/status" class="link">${d.result_view}</a></div>`;
+        const json = await res.json();
+        if (json.success) {
+          result.innerHTML = `<div class="result-msg success">✓ ${currentLang === 'zh' ? '分析请求已提交' : 'Analysis request submitted'} — <a href="${json.issue_url}" target="_blank" style="color:inherit;text-decoration:underline;">Issue #${json.issue_number}</a></div>`;
+          this.reset();
+          switchMode();
         } else {
-          result.innerHTML = `<div class="result-msg error">Error: ${data.error || 'Unknown error'}</div>`;
+          result.innerHTML = `<div class="result-msg error">✗ ${json.error || (currentLang === 'zh' ? '提交失败' : 'Submission failed')}</div>`;
         }
       } catch (err) {
-        result.innerHTML = `<div class="result-msg error">Network error: ${err.message}</div>`;
-      } finally {
-        btn.disabled = false;
-        btn.querySelector('span').textContent = d.btn_submit;
+        result.innerHTML = `<div class="result-msg error">✗ ${currentLang === 'zh' ? '网络错误' : 'Network error'}: ${err.message}</div>`;
       }
+      btn.disabled = false;
+      applyLanguage();
     });
+
+    applyLanguage();
+    switchMode();
   </script>  </div> </body></html>
