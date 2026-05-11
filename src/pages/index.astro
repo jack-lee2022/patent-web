@@ -2,330 +2,254 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 const t = {
   zh: {
-    nav_new: "新增分析", nav_status: "任务状态", nav_reports: "报告列表",
-    title_new: "新增分析请求",
-    desc_new: "选择分析模式并填写技术信息，系统将自动搜索相关专利并生成深度分析报告。",
-    label_mode: "分析模式", label_topic: "技术主题", label_keywords: "附加关键词",
-    label_invention: "发明描述", label_field: "技术领域",
-    label_product: "产品描述", label_markets: "目标市场", label_assignees: "目标公司",
-    label_query: "检索查询", label_patent_ids: "专利号码",
-    label_max_results: "最大结果数", label_max_structured: "最大专利数",
-    placeholder_topic: "输入技术主题，例如：negative pressure therapy",
-    placeholder_keywords: "例如：oral device mask-free nasal",
-    placeholder_invention: "详细描述您的发明，包括解决的问题、技术方案和预期效果...",
-    placeholder_field: "例如：medical device, sleep therapy",
-    placeholder_product: "描述您的产品特征、功能和应用场景...",
-    placeholder_markets: "US, TW, EP, CN, JP",
-    placeholder_assignees: "例如：Somnics, ResMed, Philips",
-    placeholder_query: "例如：negative pressure therapy sleep apnea",
-    placeholder_patent_ids: "WO2019123456, US10/123,456",
-    hint_keywords: "多个关键词请用空格分隔",
-    hint_markets: "市场代码用逗号分隔，例如：US, TW, EP",
-    hint_patent_ids: "专利号码用逗号分隔",
-    btn_submit: "提交分析请求",
-    mode_sota: "技术全景 (SOTA)", mode_patentability: "可专利性评估", mode_fto: "自由实施 (FTO)", mode_structured: "结构化分析",
-    subtitle_sota: "探索特定领域的技术全景与专利布局",
-    subtitle_patentability: "评估发明的新颖性、创造性和可专利性",
-    subtitle_fto: "分析产品是否侵犯现有专利权",
-    subtitle_structured: "对单个专利进行深度结构化分析",
-    scenario_sota_1: "公司进入新市场，摸底技术领域主要玩家",
-    scenario_sota_2: "投资人做 Due Diligence，评估目标公司技术护城河",
-    scenario_sota_3: "研发团队启动新项目前了解现有技术发展",
-    scenario_patentability_1: "工程师发明了新方法，想评估是否具备新颖性",
-    scenario_patentability_2: "准备专利申请前，先做 prior art 检索",
-    scenario_patentability_3: "专利代理人帮客户评估发明点的可专利空间",
-    scenario_fto_1: "产品上市前的专利侵权风险评估",
-    scenario_fto_2: "并购交易中的 IP Due Diligence",
-    scenario_fto_3: "竞品分析时确认自己的技术路线是否安全",
-    scenario_structured_1: "收到专利侵权警告信，需要详细分析对方专利",
-    scenario_structured_2: "专利许可谈判前，评估专利价值",
-    scenario_structured_3: "准备专利无效请求，逐条分析权利要求",
-    select_mode_hint: "点击上方卡片选择分析模式",
-  },
-  en: {
     nav_new: "New Analysis", nav_status: "Task Status", nav_reports: "Reports",
-    title_new: "New Analysis Request",
-    desc_new: "Select analysis mode and enter technical information. The system will automatically search relevant patents and generate a comprehensive analysis report.",
+    title_new: "Patent Analysis Request",
+    desc_new: "Explore Technology Landscape",
     label_mode: "Analysis Mode", label_topic: "Technology Topic", label_keywords: "Additional Keywords",
     label_invention: "Invention Description", label_field: "Technical Field",
     label_product: "Product Description", label_markets: "Target Markets", label_assignees: "Target Companies",
     label_query: "Search Query", label_patent_ids: "Patent Numbers",
     label_max_results: "Max Results", label_max_structured: "Max Patents",
-    placeholder_topic: "Enter technology topic, e.g. negative pressure therapy",
-    placeholder_keywords: "e.g. oral device mask-free nasal",
-    placeholder_invention: "Describe your invention in detail, including the problem solved, technical approach, and expected effects...",
+    placeholder_topic: "Enter technology topic",
+    placeholder_keywords: "Add secondary keywords",
+    placeholder_invention: "Describe your invention in detail...",
     placeholder_field: "e.g. medical device, sleep therapy",
-    placeholder_product: "Describe your product features, functions, and use cases...",
+    placeholder_product: "Describe your product features...",
     placeholder_markets: "US, TW, EP, CN, JP",
     placeholder_assignees: "e.g. Somnics, ResMed, Philips",
     placeholder_query: "e.g. negative pressure therapy sleep apnea",
     placeholder_patent_ids: "WO2019123456, US10/123,456",
-    hint_keywords: "Multiple keywords separated by spaces",
-    hint_markets: "Market codes separated by commas, e.g. US, TW, EP",
+    hint_topic: "e.g., Negative Pressure Wound Therapy",
+    hint_keywords: "e.g., Oral Device, Mask-Free Nasal",
+    hint_markets: "Market codes separated by commas",
     hint_patent_ids: "Patent numbers separated by commas",
-    btn_submit: "Submit Analysis Request",
-    mode_sota: "State of the Art (SOTA)", mode_patentability: "Patentability Assessment", mode_fto: "Freedom to Operate (FTO)", mode_structured: "Structured Analysis",
+    btn_submit: "SUBMIT ANALYSIS REQUEST",
+    mode_sota: "State of the Art (SOTA) - Technology Landscape", mode_patentability: "Patentability Assessment", mode_fto: "Freedom to Operate (FTO)", mode_structured: "Structured Analysis",
     subtitle_sota: "Explore the technology landscape and patent distribution in a specific field",
     subtitle_patentability: "Assess novelty, inventiveness, and patentability of an invention",
     subtitle_fto: "Analyze whether a product infringes existing patents",
     subtitle_structured: "Perform deep structured analysis on a single patent",
-    scenario_sota_1: "Company entering new market, mapping key players in the tech field",
-    scenario_sota_2: "Investor Due Diligence, assessing target company's tech moat",
-    scenario_sota_3: "R&D team scoping existing technology before new project kickoff",
-    scenario_patentability_1: "Engineer invented a new method, wants to assess novelty",
-    scenario_patentability_2: "Prior art search before patent application filing",
-    scenario_patentability_3: "Patent attorney evaluating client's invention for patentability",
+    scenario_sota_1: "Company entering new market, mapping key players",
+    scenario_sota_2: "Investor Due Diligence",
+    scenario_sota_3: "R&D team scoping existing technology",
+    scenario_patentability_1: "Engineer invented new method, assess novelty",
+    scenario_patentability_2: "Prior art search before patent filing",
+    scenario_patentability_3: "Patent attorney evaluating invention",
     scenario_fto_1: "Pre-launch patent infringement risk assessment",
     scenario_fto_2: "IP Due Diligence in M&A transactions",
-    scenario_fto_3: "Competitive analysis to confirm safe technology route",
-    scenario_structured_1: "Received patent infringement notice, need detailed claim analysis",
-    scenario_structured_2: "Patent license negotiation, evaluating patent value",
-    scenario_structured_3: "Preparing invalidation request, analyzing claims element by element",
-    select_mode_hint: "Click a card above to select analysis mode",
+    scenario_fto_3: "Competitive analysis, confirm safe route",
+    scenario_structured_1: "Received infringement notice, analyze claims",
+    scenario_structured_2: "Patent license negotiation, evaluate value",
+    scenario_structured_3: "Preparing invalidation request",
+  },
+  en: {
+    nav_new: "New Analysis", nav_status: "Task Status", nav_reports: "Reports",
+    title_new: "Patent Analysis Request",
+    desc_new: "Explore Technology Landscape",
+    label_mode: "Analysis Mode", label_topic: "Technology Topic", label_keywords: "Additional Keywords",
+    label_invention: "Invention Description", label_field: "Technical Field",
+    label_product: "Product Description", label_markets: "Target Markets", label_assignees: "Target Companies",
+    label_query: "Search Query", label_patent_ids: "Patent Numbers",
+    label_max_results: "Max Results", label_max_structured: "Max Patents",
+    placeholder_topic: "Enter technology topic",
+    placeholder_keywords: "Add secondary keywords",
+    placeholder_invention: "Describe your invention in detail...",
+    placeholder_field: "e.g. medical device, sleep therapy",
+    placeholder_product: "Describe your product features...",
+    placeholder_markets: "US, TW, EP, CN, JP",
+    placeholder_assignees: "e.g. Somnics, ResMed, Philips",
+    placeholder_query: "e.g. negative pressure therapy sleep apnea",
+    placeholder_patent_ids: "WO2019123456, US10/123,456",
+    hint_topic: "e.g., Negative Pressure Wound Therapy",
+    hint_keywords: "e.g., Oral Device, Mask-Free Nasal",
+    hint_markets: "Market codes separated by commas",
+    hint_patent_ids: "Patent numbers separated by commas",
+    btn_submit: "SUBMIT ANALYSIS REQUEST",
+    mode_sota: "State of the Art (SOTA) - Technology Landscape", mode_patentability: "Patentability Assessment", mode_fto: "Freedom to Operate (FTO)", mode_structured: "Structured Analysis",
+    subtitle_sota: "Explore the technology landscape and patent distribution in a specific field",
+    subtitle_patentability: "Assess novelty, inventiveness, and patentability of an invention",
+    subtitle_fto: "Analyze whether a product infringes existing patents",
+    subtitle_structured: "Perform deep structured analysis on a single patent",
+    scenario_sota_1: "Company entering new market, mapping key players",
+    scenario_sota_2: "Investor Due Diligence",
+    scenario_sota_3: "R&D team scoping existing technology",
+    scenario_patentability_1: "Engineer invented new method, assess novelty",
+    scenario_patentability_2: "Prior art search before patent filing",
+    scenario_patentability_3: "Patent attorney evaluating invention",
+    scenario_fto_1: "Pre-launch patent infringement risk assessment",
+    scenario_fto_2: "IP Due Diligence in M&A transactions",
+    scenario_fto_3: "Competitive analysis, confirm safe route",
+    scenario_structured_1: "Received infringement notice, analyze claims",
+    scenario_structured_2: "Patent license negotiation, evaluate value",
+    scenario_structured_3: "Preparing invalidation request",
   }
 };
 ---
 <BaseLayout title="Patent Analysis Agent">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-brand">
-      <div class="logo">P</div>
-      <div class="brand-text">
-        Patent Analysis
-        <small>Agent System</small>
-      </div>
-    </div>
-    <nav class="sidebar-nav">
-      <a href="/" class="active">
-        <span class="icon">✨</span>
-        <span data-key="nav_new">新增分析</span>
-      </a>
-      <a href="/status">
-        <span class="icon">📋</span>
-        <span data-key="nav_status">任务状态</span>
-      </a>
-      <a href="/reports">
-        <span class="icon">📊</span>
-        <span data-key="nav_reports">报告列表</span>
-      </a>
-    </nav>
-    <div class="sidebar-footer">
-      <button class="lang-switch" onclick="toggleLang()">
-        <span id="langFlag">🇹🇼</span>
-        <span id="langLabel">EN</span>
+  <!-- Centered Layout -->
+  <div class="centered-page">
+    <!-- Top Language Toggle -->
+    <div class="top-bar">
+      <button class="lang-toggle" onclick="toggleLang()">
+        <span id="langLabel">EN</span> | <span id="langAlt">中文</span>
       </button>
     </div>
-  </aside>
 
-  <!-- Main Content -->
-  <main class="main">
-    <div class="page-header">
-      <h1 data-key="title_new">新增分析请求</h1>
-      <p class="page-desc" data-key="desc_new">选择分析模式并填写技术信息，系统将自动搜索相关专利并生成深度分析报告。</p>
+    <!-- Logo & Title -->
+    <div class="hero">
+      <div class="hero-logo">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2" opacity="0.3"/>
+          <path d="M24 8C24 8 32 16 32 24C32 32 24 40 24 40" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M24 12C24 12 28 18 28 24C28 30 24 36 24 36" stroke="currentColor" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+          <path d="M24 16C24 16 26 20 26 24C26 28 24 32 24 32" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+        </svg>
+      </div>
+      <h1 class="hero-title">PATENT ANALYSIS AGENT</h1>
     </div>
 
-    <div class="card">
+    <!-- Navigation -->
+    <nav class="top-nav">
+      <a href="/" class="active" data-key="nav_new">New Analysis</a>
+      <a href="/status" data-key="nav_status">Task Status</a>
+      <a href="/reports" data-key="nav_reports">Reports</a>
+    </nav>
+
+    <!-- Form Card -->
+    <div class="form-card">
+      <h2 class="form-title" data-key="title_new">Patent Analysis Request</h2>
+      <p class="form-subtitle" data-key="desc_new">Explore Technology Landscape</p>
+
       <form id="analysisForm">
-        <!-- Analysis Mode Cards -->
-        <div class="form-section">
-          <label class="form-label" data-key="label_mode">分析模式</label>
+        <!-- Analysis Mode -->
+        <div class="form-group">
+          <label class="form-label" data-key="label_mode">Analysis Mode</label>
           <input type="hidden" id="mode" name="mode" value="sota" />
           <div class="mode-grid">
             <div class="mode-card active" data-mode="sota" onclick="selectMode('sota')">
               <div class="mode-icon">🌍</div>
-              <div class="mode-name" data-key="mode_sota">技术全景 (SOTA)</div>
-              <div class="mode-desc" data-key="subtitle_sota">探索特定领域的技术全景与专利布局</div>
+              <div class="mode-name" data-key="mode_sota">State of the Art (SOTA)</div>
               <ul class="mode-scenarios">
-                <li data-key="scenario_sota_1">公司进入新市场，摸底技术领域主要玩家</li>
-                <li data-key="scenario_sota_2">投资人做 Due Diligence</li>
-                <li data-key="scenario_sota_3">研发团队启动新项目前了解现有技术</li>
+                <li data-key="scenario_sota_1">Company entering new market</li>
+                <li data-key="scenario_sota_2">Investor Due Diligence</li>
+                <li data-key="scenario_sota_3">R&D team scoping technology</li>
               </ul>
             </div>
             <div class="mode-card" data-mode="patentability" onclick="selectMode('patentability')">
               <div class="mode-icon">💡</div>
-              <div class="mode-name" data-key="mode_patentability">可专利性评估</div>
-              <div class="mode-desc" data-key="subtitle_patentability">评估发明的新颖性、创造性和可专利性</div>
+              <div class="mode-name" data-key="mode_patentability">Patentability Assessment</div>
               <ul class="mode-scenarios">
-                <li data-key="scenario_patentability_1">工程师发明了新方法，想评估是否具备新颖性</li>
-                <li data-key="scenario_patentability_2">准备专利申请前先做 prior art 检索</li>
-                <li data-key="scenario_patentability_3">专利代理人帮客户评估发明点</li>
+                <li data-key="scenario_patentability_1">Engineer assesses novelty</li>
+                <li data-key="scenario_patentability_2">Prior art search</li>
+                <li data-key="scenario_patentability_3">Patent attorney evaluation</li>
               </ul>
             </div>
             <div class="mode-card" data-mode="fto" onclick="selectMode('fto')">
               <div class="mode-icon">🛡️</div>
-              <div class="mode-name" data-key="mode_fto">自由实施 (FTO)</div>
-              <div class="mode-desc" data-key="subtitle_fto">分析产品是否侵犯现有专利权</div>
+              <div class="mode-name" data-key="mode_fto">Freedom to Operate (FTO)</div>
               <ul class="mode-scenarios">
-                <li data-key="scenario_fto_1">产品上市前的专利侵权风险评估</li>
-                <li data-key="scenario_fto_2">并购交易中的 IP Due Diligence</li>
-                <li data-key="scenario_fto_3">竞品分析时确认技术路线是否安全</li>
+                <li data-key="scenario_fto_1">Pre-launch risk assessment</li>
+                <li data-key="scenario_fto_2">M&A IP Due Diligence</li>
+                <li data-key="scenario_fto_3">Competitive analysis</li>
               </ul>
             </div>
             <div class="mode-card" data-mode="structured" onclick="selectMode('structured')">
               <div class="mode-icon">🔍</div>
-              <div class="mode-name" data-key="mode_structured">结构化分析</div>
-              <div class="mode-desc" data-key="subtitle_structured">对单个专利进行深度结构化分析</div>
+              <div class="mode-name" data-key="mode_structured">Structured Analysis</div>
               <ul class="mode-scenarios">
-                <li data-key="scenario_structured_1">收到专利侵权警告信，需要详细分析对方专利</li>
-                <li data-key="scenario_structured_2">专利许可谈判前评估专利价值</li>
-                <li data-key="scenario_structured_3">准备专利无效请求，逐条分析权利要求</li>
+                <li data-key="scenario_structured_1">Infringement notice response</li>
+                <li data-key="scenario_structured_2">License negotiation</li>
+                <li data-key="scenario_structured_3">Invalidation preparation</li>
               </ul>
             </div>
           </div>
         </div>
 
-        <div class="divider"></div>
-
-        <!-- SOTA Fields -->
+        <!-- Dynamic Fields -->
         <div id="sota-fields" class="field-section">
-          <div class="form-section">
-            <label class="form-label">
-              <span data-key="label_topic">技术主题</span>
-              <span class="required">*</span>
-            </label>
-            <textarea name="topic" class="form-textarea xl" placeholder="" data-placeholder-key="placeholder_topic" required></textarea>
+          <div class="form-group">
+            <label class="form-label" data-key="label_topic">Technology Topic</label>
+            <div class="input-with-hint">
+              <textarea name="topic" class="form-textarea xl" placeholder="" data-placeholder-key="placeholder_topic" required></textarea>
+              <span class="input-hint" data-key="hint_topic">e.g., Negative Pressure Wound Therapy</span>
+            </div>
           </div>
-          <div class="form-section">
-            <label class="form-label" data-key="label_keywords">附加关键词</label>
-            <textarea name="keywords" class="form-textarea lg" placeholder="" data-placeholder-key="placeholder_keywords"></textarea>
-            <p class="form-hint" data-key="hint_keywords">多个关键词请用空格分隔</p>
+          <div class="form-group">
+            <label class="form-label" data-key="label_keywords">Additional Keywords</label>
+            <div class="input-with-hint">
+              <textarea name="keywords" class="form-textarea lg" placeholder="" data-placeholder-key="placeholder_keywords"></textarea>
+              <span class="input-hint" data-key="hint_keywords">e.g., Oral Device, Mask-Free Nasal</span>
+            </div>
+          </div>
+          <div class="form-group narrow">
+            <label class="form-label" data-key="label_max_results">Max Results</label>
+            <input type="number" name="max_results" class="form-input" value="50" min="1" max="200" />
           </div>
         </div>
 
-        <!-- Patentability Fields -->
-        <div id="patentability-fields" class="field-section" style="display:none;">
-          <div class="form-section">
-            <label class="form-label">
-              <span data-key="label_invention">发明描述</span>
-              <span class="required">*</span>
-            </label>
+        <div id="patentability-fields" class="field-section" style="display:none">
+          <div class="form-group">
+            <label class="form-label" data-key="label_invention">Invention Description</label>
             <textarea name="invention" class="form-textarea xl" placeholder="" data-placeholder-key="placeholder_invention" required></textarea>
           </div>
-          <div class="form-section">
-            <label class="form-label" data-key="label_field">技术领域</label>
-            <input type="text" name="field" class="form-input" placeholder="" data-placeholder-key="placeholder_field">
+          <div class="form-group">
+            <label class="form-label" data-key="label_field">Technical Field</label>
+            <input type="text" name="field" class="form-input" placeholder="" data-placeholder-key="placeholder_field" />
           </div>
         </div>
 
-        <!-- FTO Fields -->
-        <div id="fto-fields" class="field-section" style="display:none;">
-          <div class="form-section">
-            <label class="form-label">
-              <span data-key="label_product">产品描述</span>
-              <span class="required">*</span>
-            </label>
+        <div id="fto-fields" class="field-section" style="display:none">
+          <div class="form-group">
+            <label class="form-label" data-key="label_product">Product Description</label>
             <textarea name="product" class="form-textarea xl" placeholder="" data-placeholder-key="placeholder_product" required></textarea>
           </div>
           <div class="form-row">
-            <div class="form-section">
-              <label class="form-label" data-key="label_markets">目标市场</label>
-              <input type="text" name="markets" class="form-input" value="US, TW, EP" placeholder="" data-placeholder-key="placeholder_markets">
-              <p class="form-hint" data-key="hint_markets">市场代码用逗号分隔</p>
+            <div class="form-group">
+              <label class="form-label" data-key="label_markets">Target Markets</label>
+              <div class="input-with-hint">
+                <input type="text" name="markets" class="form-input" placeholder="" data-placeholder-key="placeholder_markets" />
+                <span class="input-hint" data-key="hint_markets">Market codes separated by commas</span>
+              </div>
             </div>
-            <div class="form-section">
-              <label class="form-label" data-key="label_assignees">目标公司</label>
-              <input type="text" name="assignees" class="form-input" placeholder="" data-placeholder-key="placeholder_assignees">
+            <div class="form-group">
+              <label class="form-label" data-key="label_assignees">Target Companies</label>
+              <input type="text" name="assignees" class="form-input" placeholder="" data-placeholder-key="placeholder_assignees" />
             </div>
           </div>
         </div>
 
-        <!-- Structured Fields -->
-        <div id="structured-fields" class="field-section" style="display:none;">
-          <div class="form-section">
-            <label class="form-label">
-              <span data-key="label_query">检索查询</span>
-              <span class="required">*</span>
-            </label>
-            <input type="text" name="query" class="form-input" placeholder="" data-placeholder-key="placeholder_query" required>
+        <div id="structured-fields" class="field-section" style="display:none">
+          <div class="form-group">
+            <label class="form-label" data-key="label_query">Search Query</label>
+            <input type="text" name="query" class="form-input" placeholder="" data-placeholder-key="placeholder_query" required />
           </div>
-          <div class="form-section">
-            <label class="form-label" data-key="label_patent_ids">专利号码</label>
-            <input type="text" name="patent_ids" class="form-input" placeholder="" data-placeholder-key="placeholder_patent_ids">
-            <p class="form-hint" data-key="hint_patent_ids">专利号码用逗号分隔</p>
+          <div class="form-group">
+            <label class="form-label" data-key="label_patent_ids">Patent Numbers</label>
+            <div class="input-with-hint">
+              <input type="text" name="patent_ids" class="form-input" placeholder="" data-placeholder-key="placeholder_patent_ids" />
+              <span class="input-hint" data-key="hint_patent_ids">Patent numbers separated by commas</span>
+            </div>
           </div>
-          <div class="form-section" style="max-width: 200px;">
-            <label class="form-label" data-key="label_max_structured">最大专利数</label>
-            <input type="number" name="max_results_structured" class="form-input" value="10" min="1" max="50">
+          <div class="form-group narrow">
+            <label class="form-label" data-key="label_max_structured">Max Patents</label>
+            <input type="number" name="max_structured" class="form-input" value="10" min="1" max="50" />
           </div>
         </div>
 
-        <div class="divider"></div>
-
-        <!-- Max Results (common) -->
-        <div class="form-section" style="max-width: 200px;">
-          <label class="form-label" data-key="label_max_results">最大结果数</label>
-          <input type="number" name="max_results" class="form-input" value="50" min="10" max="200">
-        </div>
-
-        <button type="submit" class="btn btn-block" id="submitBtn" data-key="btn_submit">
-          提交分析请求
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <span data-key="btn_submit">SUBMIT ANALYSIS REQUEST</span>
         </button>
 
         <div id="result"></div>
       </form>
     </div>
-  </main>
+  </div>
 
-  <script is:inline>
-    const DICT = {
-      zh: {
-        nav_new: "新增分析", nav_status: "任务状态", nav_reports: "报告列表",
-        title_new: "新增分析请求",
-        desc_new: "选择分析模式并填写技术信息，系统将自动搜索相关专利并生成深度分析报告。",
-        label_mode: "分析模式", label_topic: "技术主题", label_keywords: "附加关键词",
-        label_invention: "发明描述", label_field: "技术领域",
-        label_product: "产品描述", label_markets: "目标市场", label_assignees: "目标公司",
-        label_query: "检索查询", label_patent_ids: "专利号码",
-        label_max_results: "最大结果数", label_max_structured: "最大专利数",
-        placeholder_topic: "输入技术主题，例如：negative pressure therapy",
-        placeholder_keywords: "例如：oral device mask-free nasal",
-        placeholder_invention: "详细描述您的发明，包括解决的问题、技术方案和预期效果...",
-        placeholder_field: "例如：medical device, sleep therapy",
-        placeholder_product: "描述您的产品特征、功能和应用场景...",
-        placeholder_markets: "US, TW, EP, CN, JP",
-        placeholder_assignees: "例如：Somnics, ResMed, Philips",
-        placeholder_query: "例如：negative pressure therapy sleep apnea",
-        placeholder_patent_ids: "WO2019123456, US10/123,456",
-        hint_keywords: "多个关键词请用空格分隔",
-        hint_markets: "市场代码用逗号分隔，例如：US, TW, EP",
-        hint_patent_ids: "专利号码用逗号分隔",
-        btn_submit: "提交分析请求",
-        mode_sota: "技术全景 (SOTA)", mode_patentability: "可专利性评估", mode_fto: "自由实施 (FTO)", mode_structured: "结构化分析",
-        subtitle_sota: "探索特定领域的技术全景与专利布局",
-        subtitle_patentability: "评估发明的新颖性、创造性和可专利性",
-        subtitle_fto: "分析产品是否侵犯现有专利权",
-        subtitle_structured: "对单个专利进行深度结构化分析",
-      },
-      en: {
-        nav_new: "New Analysis", nav_status: "Task Status", nav_reports: "Reports",
-        title_new: "New Analysis Request",
-        desc_new: "Select analysis mode and enter technical information. The system will automatically search relevant patents and generate a comprehensive analysis report.",
-        label_mode: "Analysis Mode", label_topic: "Technology Topic", label_keywords: "Additional Keywords",
-        label_invention: "Invention Description", label_field: "Technical Field",
-        label_product: "Product Description", label_markets: "Target Markets", label_assignees: "Target Companies",
-        label_query: "Search Query", label_patent_ids: "Patent Numbers",
-        label_max_results: "Max Results", label_max_structured: "Max Patents",
-        placeholder_topic: "Enter technology topic, e.g. negative pressure therapy",
-        placeholder_keywords: "e.g. oral device mask-free nasal",
-        placeholder_invention: "Describe your invention in detail, including the problem solved, technical approach, and expected effects...",
-        placeholder_field: "e.g. medical device, sleep therapy",
-        placeholder_product: "Describe your product features, functions, and use cases...",
-        placeholder_markets: "US, TW, EP, CN, JP",
-        placeholder_assignees: "e.g. Somnics, ResMed, Philips",
-        placeholder_query: "e.g. negative pressure therapy sleep apnea",
-        placeholder_patent_ids: "WO2019123456, US10/123,456",
-        hint_keywords: "Multiple keywords separated by spaces",
-        hint_markets: "Market codes separated by commas, e.g. US, TW, EP",
-        hint_patent_ids: "Patent numbers separated by commas",
-        btn_submit: "Submit Analysis Request",
-        mode_sota: "State of the Art (SOTA)", mode_patentability: "Patentability Assessment", mode_fto: "Freedom to Operate (FTO)", mode_structured: "Structured Analysis",
-        subtitle_sota: "Explore the technology landscape and patent distribution in a specific field",
-        subtitle_patentability: "Assess novelty, inventiveness, and patentability of an invention",
-        subtitle_fto: "Analyze whether a product infringes existing patents",
-        subtitle_structured: "Perform deep structured analysis on a single patent",
-      }
-    };
+  <!-- Sparkle decoration -->
+  <div class="sparkle" aria-hidden="true">✦</div>
 
+  <script is:inline define:vars={{ DICT: t }}>
     let currentLang = localStorage.getItem('patent-lang') || 'zh';
 
     function applyLanguage() {
@@ -339,10 +263,10 @@ const t = {
         if (d[key]) el.placeholder = d[key];
       });
 
-      const flag = document.getElementById('langFlag');
       const label = document.getElementById('langLabel');
-      if (flag) flag.textContent = currentLang === 'zh' ? '🇹🇼' : '🇺🇸';
+      const alt = document.getElementById('langAlt');
       if (label) label.textContent = currentLang === 'zh' ? 'EN' : '中文';
+      if (alt) alt.textContent = currentLang === 'zh' ? '中文' : 'EN';
 
       document.documentElement.lang = currentLang === 'zh' ? 'zh-TW' : 'en';
     }
@@ -370,44 +294,56 @@ const t = {
       if (sections[mode]) sections[mode].style.display = 'block';
     }
 
-    function switchMode() {
-      selectMode(modeInput.value);
-    }
+    applyLanguage();
 
-    // Submit
     document.getElementById('analysisForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('submitBtn');
       const result = document.getElementById('result');
       btn.disabled = true;
-      btn.textContent = currentLang === 'zh' ? '提交中...' : 'Submitting...';
-
-      const formData = new FormData(this);
-      const data = Object.fromEntries(formData.entries());
-      data.mode = modeSelect.value;
+      const originalText = btn.querySelector('span').textContent;
+      btn.querySelector('span').textContent = currentLang === 'zh' ? '提交中...' : 'Submitting...';
 
       try {
-        const res = await fetch('/api/create-task', {
+        const fd = new FormData(this);
+        const payload = { mode: fd.get('mode') };
+        const mode = payload.mode;
+
+        if (mode === 'sota') {
+          payload.topic = fd.get('topic');
+          payload.keywords = fd.get('keywords') || '';
+          payload.max_results = parseInt(fd.get('max_results')) || 50;
+        } else if (mode === 'patentability') {
+          payload.invention = fd.get('invention');
+          payload.field = fd.get('field') || '';
+        } else if (mode === 'fto') {
+          payload.product = fd.get('product');
+          payload.markets = fd.get('markets') || '';
+          payload.assignees = fd.get('assignees') || '';
+        } else if (mode === 'structured') {
+          payload.query = fd.get('query');
+          payload.patent_ids = fd.get('patent_ids') || '';
+          payload.max_structured = parseInt(fd.get('max_structured')) || 10;
+        }
+
+        const resp = await fetch('/api/create-task', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+          body: JSON.stringify(payload)
         });
-        const json = await res.json();
-        if (json.success) {
-          result.innerHTML = `<div class="result-msg success">✓ ${currentLang === 'zh' ? '分析请求已提交' : 'Analysis request submitted'} — <a href="${json.issue_url}" target="_blank" style="color:inherit;text-decoration:underline;">Issue #${json.issue_number}</a></div>`;
-          this.reset();
-          switchMode();
+        const data = await resp.json();
+        if (resp.ok) {
+          result.innerHTML = '<div class="result success">' + (currentLang === 'zh' ? '任务已创建！' : 'Task created!') + ' <a href="' + data.issue_url + '" target="_blank">GitHub #' + data.issue_number + '</a></div>';
+          setTimeout(() => { window.location.href = '/status'; }, 1500);
         } else {
-          result.innerHTML = `<div class="result-msg error">✗ ${json.error || (currentLang === 'zh' ? '提交失败' : 'Submission failed')}</div>`;
+          result.innerHTML = '<div class="result error">' + (data.error || 'Error') + '</div>';
         }
       } catch (err) {
-        result.innerHTML = `<div class="result-msg error">✗ ${currentLang === 'zh' ? '网络错误' : 'Network error'}: ${err.message}</div>`;
+        result.innerHTML = '<div class="result error">' + err.message + '</div>';
+      } finally {
+        btn.disabled = false;
+        btn.querySelector('span').textContent = originalText;
       }
-      btn.disabled = false;
-      applyLanguage();
     });
-
-    applyLanguage();
-    switchMode();
   </script>
 </BaseLayout>
