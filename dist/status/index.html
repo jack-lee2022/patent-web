@@ -1,0 +1,130 @@
+<!DOCTYPE html><html lang="zh-TW"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Task Status - Patent Analysis Agent</title><link rel="stylesheet" href="/_astro/index.5Axipl-J.css"></head> <body> <div class="container">  <div class="site-header"> <div class="site-brand"> <div class="logo-icon">P</div> <div> <div class="logo-text">Patent Analysis Agent</div> <div class="logo-sub" data-key="subtitle">Task Queue</div> </div> </div> <div style="display:flex;align-items:center;gap:0.75rem;"> <nav> <a href="/" data-key="nav_new"></a> <a href="/status" class="active" data-key="nav_status"></a> <a href="/reports" data-key="nav_reports"></a> </nav> <button class="lang-switch" onclick="toggleLang()"> <span class="flag" id="langFlag">🇹🇼</span> <span id="langLabel">EN</span> </button> </div> </div> <h1 data-key="title_status"></h1> <div class="card"> <div id="loading" data-key="loading"></div> <div id="tasks"></div> </div> <script>
+    const DICT = {
+      zh: {
+        nav_new: "新增分析", nav_status: "任务状态", nav_reports: "报告列表",
+        title_status: "任务状态",
+        loading: "加载中...",
+        empty: "暂无任务",
+        error: "加载失败",
+        retry: "重试",
+        table_number: "编号",
+        table_title: "标题",
+        table_state: "状态",
+        table_created: "创建时间",
+        table_view: "查看",
+        badge_pending: "待处理",
+        badge_processing: "处理中",
+        badge_completed: "已完成",
+        badge_failed: "失败",
+        subtitle: "任务队列",
+      },
+      en: {
+        nav_new: "New Analysis", nav_status: "Task Status", nav_reports: "Reports",
+        title_status: "Task Status",
+        loading: "Loading...",
+        empty: "No tasks yet",
+        error: "Failed to load",
+        retry: "Retry",
+        table_number: "#",
+        table_title: "Title",
+        table_state: "State",
+        table_created: "Created",
+        table_view: "View",
+        badge_pending: "Pending",
+        badge_processing: "Processing",
+        badge_completed: "Completed",
+        badge_failed: "Failed",
+        subtitle: "Task Queue",
+      }
+    };
+
+    let currentLang = localStorage.getItem('patent_lang') || 'zh';
+
+    function applyLang(lang) {
+      const d = DICT[lang];
+      document.querySelectorAll('[data-key]').forEach(el => {
+        const k = el.dataset.key;
+        if (d[k] !== undefined) el.textContent = d[k];
+      });
+      document.getElementById('langFlag').textContent = lang === 'zh' ? '🇹🇼' : '🇺🇸';
+      document.getElementById('langLabel').textContent = lang === 'zh' ? 'EN' : '中文';
+    }
+
+    function toggleLang() {
+      currentLang = currentLang === 'zh' ? 'en' : 'zh';
+      localStorage.setItem('patent_lang', currentLang);
+      applyLang(currentLang);
+      loadTasks();
+    }
+
+    function formatDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return d.toLocaleDateString(currentLang === 'zh' ? 'zh-TW' : 'en-US', {
+        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    async function loadTasks() {
+      const container = document.getElementById('tasks');
+      const loading = document.getElementById('loading');
+      const d = DICT[currentLang];
+      loading.style.display = 'block';
+      container.innerHTML = '';
+
+      try {
+        const resp = await fetch('/api/list-tasks?state=all');
+        const tasks = await resp.json();
+        loading.style.display = 'none';
+
+        if (tasks.error) {
+          container.innerHTML = `<div class="result-msg error">${d.error}: ${tasks.error}</div>`;
+          return;
+        }
+
+        if (!tasks.length) {
+          container.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:2rem 0;">${d.empty}</p>`;
+          return;
+        }
+
+        const stateMap = {
+          pending: { cls: 'badge-pending', label: d.badge_pending },
+          processing: { cls: 'badge-processing', label: d.badge_processing },
+          completed: { cls: 'badge-completed', label: d.badge_completed },
+          failed: { cls: 'badge-failed', label: d.badge_failed },
+        };
+
+        const rows = tasks.map(t => {
+          const st = stateMap[t.labels.find(l => ['pending','processing','completed','failed'].includes(l))] || stateMap.pending;
+          return `<tr>
+            <td><span class="badge ${st.cls}">${st.label}</span></td>
+            <td style="font-weight:500;">${t.title.replace(/^\[[A-Z]+\]\s*/, '')}</td>
+            <td style="color:var(--text-muted);font-size:0.8rem;">${formatDate(t.created_at)}</td>
+            <td><a href="${t.url}" target="_blank" class="link" style="font-size:0.85rem;">GitHub →</a></td>
+          </tr>`;
+        }).join('');
+
+        container.innerHTML = `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:90px">${d.table_state}</th>
+                  <th>${d.table_title}</th>
+                  <th style="width:120px">${d.table_created}</th>
+                  <th style="width:80px">${d.table_view}</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        `;
+      } catch (err) {
+        loading.style.display = 'none';
+        container.innerHTML = `<div class="result-msg error">${d.error}: ${err.message}</div>`;
+      }
+    }
+
+    applyLang(currentLang);
+    loadTasks();
+  </script>  </div> </body></html>

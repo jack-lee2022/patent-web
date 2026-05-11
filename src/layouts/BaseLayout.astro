@@ -7,7 +7,7 @@ const { title = "Patent Analysis Agent" } = Astro.props;
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{title}</title>
-  <style>
+  <style is:global>
     :root {
       --bg: #08080a;
       --bg-elevated: #111114;
@@ -134,14 +134,13 @@ const { title = "Patent Analysis Agent" } = Astro.props;
       margin-bottom: 1.75rem;
       letter-spacing: -0.02em;
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      flex-direction: column;
+      gap: 0.25rem;
     }
     h1 .subtitle {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 400;
       color: var(--text-dim);
-      margin-left: auto;
     }
     /* Card */
     .card {
