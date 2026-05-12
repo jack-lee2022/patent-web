@@ -237,7 +237,8 @@ const t = {
         </div>
 
         <button type="submit" class="btn-submit" id="submitBtn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <div class="btn-spinner"></div>
           <span data-key="btn_submit">SUBMIT ANALYSIS REQUEST</span>
         </button>
 
@@ -245,6 +246,9 @@ const t = {
       </form>
     </div>
   </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
 
   <!-- Sparkle decoration -->
   <div class="sparkle" aria-hidden="true">✦</div>
@@ -311,20 +315,48 @@ const t = {
 
     window.applyLanguage();
 
+    // Toast notification system
+    function showToast(message, type, duration) {
+      duration = duration || 4000;
+      var container = document.getElementById('toastContainer');
+      if (!container) return;
+      var toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      var iconSvg = '';
+      if (type === 'success') {
+        iconSvg = '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      } else if (type === 'error') {
+        iconSvg = '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01" stroke-linecap="round"/></svg>';
+      } else {
+        iconSvg = '<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01" stroke-linecap="round"/></svg>';
+      }
+      toast.innerHTML = iconSvg + '<span>' + message + '</span>';
+      container.appendChild(toast);
+      requestAnimationFrame(function() { toast.classList.add('show'); });
+      setTimeout(function() {
+        toast.classList.remove('show');
+        setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 350);
+      }, duration);
+    }
+
     document.getElementById('analysisForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const btn = document.getElementById('submitBtn');
-      const result = document.getElementById('result');
+      var btn = document.getElementById('submitBtn');
+      var result = document.getElementById('result');
+      var formCard = document.querySelector('.form-card');
       if (!btn) return;
+
       btn.disabled = true;
-      const span = btn.querySelector('span');
-      const originalText = span ? span.textContent : '';
+      btn.classList.add('loading');
+      var span = btn.querySelector('span');
+      var originalText = span ? span.textContent : '';
       if (span) span.textContent = currentLang === 'zh' ? '\u63d0\u4ea4\u4e2d...' : 'Submitting...';
+      if (result) result.innerHTML = '';
 
       try {
-        const fd = new FormData(this);
-        const payload = { mode: fd.get('mode') };
-        const mode = payload.mode;
+        var fd = new FormData(this);
+        var payload = { mode: fd.get('mode') };
+        var mode = payload.mode;
 
         if (mode === 'sota') {
           payload.topic = fd.get('topic');
@@ -343,24 +375,49 @@ const t = {
           payload.max_structured = parseInt(fd.get('max_structured')) || 10;
         }
 
-        const resp = await fetch('/api/create-task', {
+        var resp = await fetch('/api/create-task', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        const data = await resp.json();
+        var data = await resp.json();
         if (resp.ok) {
-          result.innerHTML = '<div class="result success">' + (currentLang === 'zh' ? '\u4efb\u52d9\u5df2\u5275\u5efa\uff01' : 'Task created!') + ' <a href="' + data.url + '" target="_blank">GitHub #' + data.issue_number + '</a></div>';
-          setTimeout(() => { window.location.href = '/status'; }, 1500);
+          showToast(
+            (currentLang === 'zh' ? '\u4efb\u52d9\u5df2\u5275\u5efa\uff01' : 'Task created!') + ' #' + data.issue_number,
+            'success',
+            3000
+          );
+          if (result) {
+            result.innerHTML = '<div class="result success">' + (currentLang === 'zh' ? '\u4efb\u52d9\u5df2\u5275\u5efa\uff01' : 'Task created!') + ' <a href="' + data.url + '" target="_blank">GitHub #' + data.issue_number + '</a></div>';
+          }
+          setTimeout(function() { window.location.href = '/status'; }, 1500);
         } else {
-          const err = data.error || 'Error';
-          result.innerHTML = '<div class="result error">' + (typeof err === 'string' ? err : JSON.stringify(err)).substring(0,500) + '</div>';
+          var errMsg = typeof data.error === 'string' ? data.error : JSON.stringify(data.error || 'Unknown error');
+          showToast(errMsg.substring(0, 200), 'error', 6000);
+          if (result) {
+            result.innerHTML = '<div class="result error">' + errMsg.substring(0,500) + '</div>';
+          }
+          if (formCard) {
+            formCard.classList.remove('shake');
+            void formCard.offsetWidth;
+            formCard.classList.add('shake');
+          }
         }
       } catch (err) {
-        result.innerHTML = '<div class="result error">' + (err.message || 'Network error') + '</div>';
+        var netErr = err.message || 'Network error';
+        showToast(netErr, 'error', 6000);
+        if (result) {
+          result.innerHTML = '<div class="result error">' + netErr + '</div>';
+        }
         console.error('[submit]', err);
+        if (formCard) {
+          formCard.classList.remove('shake');
+          void formCard.offsetWidth;
+          formCard.classList.add('shake');
+        }
       } finally {
         btn.disabled = false;
+        btn.classList.remove('loading');
         if (span) span.textContent = originalText;
       }
     });
