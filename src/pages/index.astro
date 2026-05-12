@@ -250,30 +250,42 @@ const t = {
   <div class="sparkle" aria-hidden="true">✦</div>
 
   <script is:inline define:vars={{ DICT: t }}>
-    let currentLang = localStorage.getItem('patent-lang') || 'zh';
+    // Safe localStorage with fallback (Telegram WebView may block it)
+    function safeGetLang() {
+      try { return localStorage.getItem('patent-lang') || 'zh'; }
+      catch (e) { return 'zh'; }
+    }
+    function safeSetLang(val) {
+      try { localStorage.setItem('patent-lang', val); }
+      catch (e) { /* noop */ }
+    }
+
+    let currentLang = safeGetLang();
 
     window.applyLanguage = function() {
-      const d = DICT[currentLang];
-      document.querySelectorAll('[data-key]').forEach(el => {
-        const key = el.getAttribute('data-key');
-        if (d[key]) el.textContent = d[key];
-      });
-      document.querySelectorAll('[data-placeholder-key]').forEach(el => {
-        const key = el.getAttribute('data-placeholder-key');
-        if (d[key]) el.placeholder = d[key];
-      });
+      try {
+        const d = DICT[currentLang];
+        document.querySelectorAll('[data-key]').forEach(el => {
+          const key = el.getAttribute('data-key');
+          if (d[key]) el.textContent = d[key];
+        });
+        document.querySelectorAll('[data-placeholder-key]').forEach(el => {
+          const key = el.getAttribute('data-placeholder-key');
+          if (d[key]) el.placeholder = d[key];
+        });
 
-      const label = document.getElementById('langLabel');
-      const alt = document.getElementById('langAlt');
-      if (label) label.textContent = currentLang === 'zh' ? 'EN' : '中文';
-      if (alt) alt.textContent = currentLang === 'zh' ? '中文' : 'EN';
+        const label = document.getElementById('langLabel');
+        const alt = document.getElementById('langAlt');
+        if (label) label.textContent = currentLang === 'zh' ? 'EN' : '中文';
+        if (alt) alt.textContent = currentLang === 'zh' ? '中文' : 'EN';
 
-      document.documentElement.lang = currentLang === 'zh' ? 'zh-TW' : 'en';
+        document.documentElement.lang = currentLang === 'zh' ? 'zh-TW' : 'en';
+      } catch (e) { console.error('[applyLanguage]', e); }
     }
 
     window.toggleLang = function() {
       currentLang = currentLang === 'zh' ? 'en' : 'zh';
-      localStorage.setItem('patent-lang', currentLang);
+      safeSetLang(currentLang);
       window.applyLanguage();
     }
 
@@ -287,12 +299,14 @@ const t = {
     };
 
     window.selectMode = function(mode) {
-      modeInput.value = mode;
-      document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
-      const card = document.querySelector('.mode-card[data-mode="' + mode + '"]');
-      if (card) card.classList.add('active');
-      Object.values(sections).forEach(s => { if(s) s.style.display = 'none'; });
-      if (sections[mode]) sections[mode].style.display = 'block';
+      try {
+        modeInput.value = mode;
+        document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+        const card = document.querySelector('.mode-card[data-mode="' + mode + '"]');
+        if (card) card.classList.add('active');
+        Object.values(sections).forEach(s => { if(s) s.style.display = 'none'; });
+        if (sections[mode]) sections[mode].style.display = 'block';
+      } catch (e) { console.error('[selectMode]', e); }
     }
 
     window.applyLanguage();
@@ -301,9 +315,11 @@ const t = {
       e.preventDefault();
       const btn = document.getElementById('submitBtn');
       const result = document.getElementById('result');
+      if (!btn) return;
       btn.disabled = true;
-      const originalText = btn.querySelector('span').textContent;
-      btn.querySelector('span').textContent = currentLang === 'zh' ? '提交中...' : 'Submitting...';
+      const span = btn.querySelector('span');
+      const originalText = span ? span.textContent : '';
+      if (span) span.textContent = currentLang === 'zh' ? '\u63d0\u4ea4\u4e2d...' : 'Submitting...';
 
       try {
         const fd = new FormData(this);
@@ -334,16 +350,18 @@ const t = {
         });
         const data = await resp.json();
         if (resp.ok) {
-          result.innerHTML = '<div class="result success">' + (currentLang === 'zh' ? '任务已创建！' : 'Task created!') + ' <a href="' + data.issue_url + '" target="_blank">GitHub #' + data.issue_number + '</a></div>';
+          result.innerHTML = '<div class="result success">' + (currentLang === 'zh' ? '\u4efb\u52d9\u5df2\u5275\u5efa\uff01' : 'Task created!') + ' <a href="' + data.url + '" target="_blank">GitHub #' + data.issue_number + '</a></div>';
           setTimeout(() => { window.location.href = '/status'; }, 1500);
         } else {
-          result.innerHTML = '<div class="result error">' + (data.error || 'Error') + '</div>';
+          const err = data.error || 'Error';
+          result.innerHTML = '<div class="result error">' + (typeof err === 'string' ? err : JSON.stringify(err)).substring(0,500) + '</div>';
         }
       } catch (err) {
-        result.innerHTML = '<div class="result error">' + err.message + '</div>';
+        result.innerHTML = '<div class="result error">' + (err.message || 'Network error') + '</div>';
+        console.error('[submit]', err);
       } finally {
         btn.disabled = false;
-        btn.querySelector('span').textContent = originalText;
+        if (span) span.textContent = originalText;
       }
     });
   </script>
