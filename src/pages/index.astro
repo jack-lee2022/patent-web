@@ -170,7 +170,7 @@ const t = {
           <div class="form-group">
             <label class="form-label" data-key="label_topic">Technology Topic</label>
             <div class="input-with-hint">
-              <textarea name="topic" class="form-textarea xl" placeholder="" data-placeholder-key="placeholder_topic" required></textarea>
+              <textarea name="topic" class="form-textarea xl" placeholder="" data-placeholder-key="placeholder_topic"></textarea>
               <span class="input-hint" data-key="hint_topic">e.g., Negative Pressure Wound Therapy</span>
             </div>
           </div>
@@ -190,7 +190,7 @@ const t = {
         <div id="patentability-fields" class="field-section" style="display:none">
           <div class="form-group">
             <label class="form-label" data-key="label_invention">Invention Description</label>
-            <textarea name="invention" class="form-textarea xl" placeholder="" data-placeholder-key="placeholder_invention" required></textarea>
+            <textarea name="invention" class="form-textarea xl" placeholder="" data-placeholder-key="placeholder_invention"></textarea>
           </div>
           <div class="form-group">
             <label class="form-label" data-key="label_field">Technical Field</label>
@@ -201,7 +201,7 @@ const t = {
         <div id="fto-fields" class="field-section" style="display:none">
           <div class="form-group">
             <label class="form-label" data-key="label_product">Product Description</label>
-            <textarea name="product" class="form-textarea xl" placeholder="" data-placeholder-key="placeholder_product" required></textarea>
+            <textarea name="product" class="form-textarea xl" placeholder="" data-placeholder-key="placeholder_product"></textarea>
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -221,7 +221,7 @@ const t = {
         <div id="structured-fields" class="field-section" style="display:none">
           <div class="form-group">
             <label class="form-label" data-key="label_query">Search Query</label>
-            <input type="text" name="query" class="form-input" placeholder="" data-placeholder-key="placeholder_query" required />
+            <input type="text" name="query" class="form-input" placeholder="" data-placeholder-key="placeholder_query" />
           </div>
           <div class="form-group">
             <label class="form-label" data-key="label_patent_ids">Patent Numbers</label>
@@ -310,10 +310,23 @@ const t = {
         if (card) card.classList.add('active');
         Object.values(sections).forEach(s => { if(s) s.style.display = 'none'; });
         if (sections[mode]) sections[mode].style.display = 'block';
+
+        // Dynamic required management: only require visible fields
+        document.querySelectorAll('.field-section textarea, .field-section input').forEach(function(el) {
+          el.removeAttribute('required');
+        });
+        if (sections[mode]) {
+          sections[mode].querySelectorAll('textarea, input').forEach(function(el) {
+            if (el.name === 'topic' || el.name === 'invention' || el.name === 'product' || el.name === 'query') {
+              el.setAttribute('required', 'required');
+            }
+          });
+        }
       } catch (e) { console.error('[selectMode]', e); }
     }
 
     window.applyLanguage();
+    window.selectMode('sota');
 
     // Toast notification system
     function showToast(message, type, duration) {
