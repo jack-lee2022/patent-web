@@ -14,7 +14,12 @@ export async function onRequestGet(context) {
 
   if (!token) {
     return new Response(
-      JSON.stringify({ error: "GITHUB_TOKEN not configured", env_keys: envKeys }),
+      JSON.stringify({ 
+        error: "GITHUB_TOKEN not configured", 
+        env_keys: envKeys,
+        env_count: envKeys.length,
+        has_repo: !!env.GITHUB_REPO
+      }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
