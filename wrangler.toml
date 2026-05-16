@@ -13,3 +13,5 @@ pages_build_output_dir = "dist"
 # Environment variables (non-secret)
 [vars]
 GITHUB_REPO = "jack-lee2022/patent_agent"
+
+# Secret GITHUB_TOKEN configured via wrangler CLI on 2026-05-16
