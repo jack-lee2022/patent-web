@@ -24,6 +24,11 @@ const t = {
     hint_markets: "市場代碼用逗號分隔",
     hint_patent_ids: "專利號碼用逗號分隔",
     btn_submit: "提交分析請求",
+    btn_generate_keywords: "產生搜索關鍵詞",
+    label_generated_keywords: "建議搜索關鍵詞",
+    label_entities: "公司 / 產品名稱（用於公司搜索）",
+    btn_confirm_keywords: "使用這些關鍵詞",
+    btn_clear: "清除",
     mode_sota: "技術全景 (SOTA)", mode_patentability: "可專利性評估", mode_fto: "自由實施 (FTO)", mode_structured: "結構化分析",
     subtitle_sota: "探索特定領域的技術全景與專利布局",
     subtitle_patentability: "評估發明的新穎性、創造性和可專利性",
@@ -65,6 +70,11 @@ const t = {
     hint_markets: "Market codes separated by commas",
     hint_patent_ids: "Patent numbers separated by commas",
     btn_submit: "SUBMIT ANALYSIS REQUEST",
+    btn_generate_keywords: "Generate Search Keywords",
+    label_generated_keywords: "Suggested Search Keywords",
+    label_entities: "Companies / Products (for assignee search)",
+    btn_confirm_keywords: "Use These Keywords",
+    btn_clear: "Clear",
     mode_sota: "State of the Art (SOTA) - Technology Landscape", mode_patentability: "Patentability Assessment", mode_fto: "Freedom to Operate (FTO)", mode_structured: "Structured Analysis",
     subtitle_sota: "Explore the technology landscape and patent distribution in a specific field",
     subtitle_patentability: "Assess novelty, inventiveness, and patentability of an invention",
@@ -177,10 +187,46 @@ const t = {
           <div class="form-group">
             <label class="form-label" data-key="label_keywords">Additional Keywords</label>
             <div class="input-with-hint">
-              <textarea name="keywords" class="form-textarea lg" placeholder="" data-placeholder-key="placeholder_keywords"></textarea>
+              <textarea name="keywords" id="keywordsInput" class="form-textarea lg" placeholder="" data-placeholder-key="placeholder_keywords"></textarea>
               <span class="input-hint" data-key="hint_keywords">e.g., Oral Device, Mask-Free Nasal</span>
             </div>
           </div>
+
+          <!-- Keyword Generation -->
+          <div class="form-group" id="keywordGenGroup">
+            <button type="button" class="btn-secondary" id="btnGenerateKeywords" onclick="generateKeywords()">
+              <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>
+              <span class="gen-label" data-key="btn_generate_keywords">Generate Search Keywords</span>
+              <div class="btn-spinner" id="genSpinner"></div>
+            </button>
+
+            <!-- Keywords Preview -->
+            <div id="keywordsPreview" class="keywords-preview" style="display:none">
+              <div class="preview-header">
+                <h4 data-key="label_generated_keywords">Suggested Search Keywords</h4>
+                <span class="preview-badge" id="keywordCount">0</span>
+              </div>
+              <div class="keywords-list" id="keywordsList"></div>
+
+              <div class="preview-section" id="entitiesSection" style="display:none">
+                <h4 data-key="label_entities">Companies / Products (for assignee search)</h4>
+                <div class="keywords-list" id="entitiesList"></div>
+              </div>
+
+              <div class="preview-divider"></div>
+
+              <div class="preview-actions">
+                <button type="button" class="btn-confirm" onclick="confirmKeywords()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span data-key="btn_confirm_keywords">Use These Keywords</span>
+                </button>
+                <button type="button" class="btn-cancel" onclick="clearKeywordsPreview()">
+                  <span data-key="btn_clear">Clear</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div class="form-group narrow">
             <label class="form-label" data-key="label_max_results">Max Results</label>
             <input type="number" name="max_results" class="form-input" value="50" min="1" max="200" />
@@ -351,6 +397,136 @@ const t = {
         setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 350);
       }, duration);
     }
+
+    // Keyword generation
+    var generatedKeywords = [];
+    var generatedEntities = [];
+
+    window.generateKeywords = async function() {
+      var topicEl = document.querySelector('textarea[name="topic"]');
+      var keywordsEl = document.getElementById('keywordsInput');
+      var btn = document.getElementById('btnGenerateKeywords');
+      var spinner = document.getElementById('genSpinner');
+      var preview = document.getElementById('keywordsPreview');
+      var topic = topicEl ? topicEl.value.trim() : '';
+
+      if (!topic) {
+        showToast(currentLang === 'zh' ? '請先輸入技術主題' : 'Please enter a technology topic first', 'error', 4000);
+        if (topicEl) topicEl.focus();
+        return;
+      }
+
+      if (btn) btn.disabled = true;
+      if (spinner) spinner.style.display = 'inline-block';
+      if (preview) preview.style.display = 'none';
+
+      try {
+        var resp = await fetch('/api/generate-keywords', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topic: topic,
+            keywords: keywordsEl ? keywordsEl.value : '',
+            language: currentLang
+          })
+        });
+        var data = await resp.json();
+        if (!resp.ok) {
+          throw new Error(data.error || ('HTTP ' + resp.status));
+        }
+
+        generatedKeywords = data.keywords || [];
+        generatedEntities = data.entities || [];
+        renderKeywordsPreview();
+        if (preview) preview.style.display = 'block';
+        showToast(
+          (currentLang === 'zh' ? '已產生 ' : 'Generated ') + generatedKeywords.length + (currentLang === 'zh' ? ' 個關鍵詞' : ' keywords'),
+          'success', 3000
+        );
+      } catch (err) {
+        showToast((currentLang === 'zh' ? '關鍵詞產生失敗: ' : 'Keyword generation failed: ') + err.message, 'error', 6000);
+        console.error('[generateKeywords]', err);
+      } finally {
+        if (btn) btn.disabled = false;
+        if (spinner) spinner.style.display = 'none';
+      }
+    };
+
+    function renderKeywordsPreview() {
+      var kList = document.getElementById('keywordsList');
+      var eList = document.getElementById('entitiesList');
+      var eSection = document.getElementById('entitiesSection');
+      var countBadge = document.getElementById('keywordCount');
+
+      if (countBadge) countBadge.textContent = generatedKeywords.length;
+
+      if (kList) {
+        kList.innerHTML = '';
+        generatedKeywords.forEach(function(k, idx) {
+          var item = document.createElement('label');
+          item.className = 'keyword-tag';
+          item.innerHTML = '<input type="checkbox" checked data-type="keyword" data-idx="' + idx + '"><span class="keyword-text" contenteditable="true">' + escapeHtml(k) + '</span>';
+          kList.appendChild(item);
+        });
+      }
+
+      if (eList) {
+        eList.innerHTML = '';
+        generatedEntities.forEach(function(e, idx) {
+          var item = document.createElement('label');
+          item.className = 'keyword-tag entity';
+          item.innerHTML = '<input type="checkbox" checked data-type="entity" data-idx="' + idx + '"><span class="keyword-text" contenteditable="true">' + escapeHtml(e) + '</span><span class="entity-badge">entity</span>';
+          eList.appendChild(item);
+        });
+      }
+
+      if (eSection) eSection.style.display = generatedEntities.length > 0 ? 'block' : 'none';
+    }
+
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    window.confirmKeywords = function() {
+      var kList = document.getElementById('keywordsList');
+      var eList = document.getElementById('entitiesList');
+      var keywordsEl = document.getElementById('keywordsInput');
+      if (!keywordsEl) return;
+
+      var selectedKeywords = [];
+      var selectedEntities = [];
+
+      if (kList) {
+        kList.querySelectorAll('input[data-type="keyword"]:checked').forEach(function(cb) {
+          var text = cb.parentNode.querySelector('.keyword-text');
+          if (text) selectedKeywords.push(text.textContent.trim());
+        });
+      }
+      if (eList) {
+        eList.querySelectorAll('input[data-type="entity"]:checked').forEach(function(cb) {
+          var text = cb.parentNode.querySelector('.keyword-text');
+          if (text) selectedEntities.push(text.textContent.trim());
+        });
+      }
+
+      var allTerms = selectedKeywords.slice();
+      selectedEntities.forEach(function(e) {
+        allTerms.push('entity:' + e);
+      });
+
+      keywordsEl.value = allTerms.join(', ');
+      clearKeywordsPreview();
+      showToast(currentLang === 'zh' ? '關鍵詞已填入' : 'Keywords applied', 'success', 2000);
+    };
+
+    window.clearKeywordsPreview = function() {
+      var preview = document.getElementById('keywordsPreview');
+      if (preview) preview.style.display = 'none';
+      generatedKeywords = [];
+      generatedEntities = [];
+    };
 
     document.getElementById('analysisForm').addEventListener('submit', async function(e) {
       e.preventDefault();
